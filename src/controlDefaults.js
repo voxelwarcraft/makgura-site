@@ -222,6 +222,22 @@ export const defaultControlState = {
       "intro": "Development updates, worldbuilding notes, faction reveals, and economy design for Makgura.",
       "posts": [
         {
+          "id": "makgura-professions-crafting-economy",
+          "status": "published",
+          "featured": true,
+          "category": "Professions",
+          "title": "Professions and crafting power the Makgura war economy",
+          "slug": "makgura-professions-crafting-economy",
+          "excerpt": "Gathering, refining, crafting, building, trading, and guild supply give Makgura players economic roles beyond combat.",
+          "seoTitle": "Makgura Professions and Crafting Economy",
+          "seoDescription": "Makgura professions include gathering, refining, crafting, building, trading, housing support, market supply, and guild war logistics.",
+          "body": "Makgura professions are designed to make the world feel alive outside of pure combat. Players should be able to build a reputation as gatherers, refiners, crafters, builders, traders, outfitters, and guild suppliers.\n\nGathering professions pull value out of the world: ore, stone, timber, hides, herbs, rare resources, and dangerous warzone materials. The best materials should often require travel, risk, protection, or control of contested territory.\n\nRefining professions turn raw materials into useful components. Ore becomes bars, hides become leather, timber becomes planks, and rare resources become the inputs needed for stronger gear, house upgrades, siege supplies, and market goods.\n\nCrafting professions create the things players actually need: weapons, armor, tools, potions, repair kits, furniture, house upgrades, outpost materials, siege parts, and replacement gear after PvP losses.\n\nThe housing and land plot economy gives professions another purpose. Player houses can create demand for building materials, furniture, storage upgrades, decorations, repairs, and prestige items crafted by other players.\n\nGuild warfare also needs supply chains. Sieges, raids, gold vein fights, and territory wars consume food, potions, gear, repairs, mounts, building parts, and replacement kits. That means a great crafter can matter to a warband as much as a great fighter.\n\nThe goal is a player-driven economy where combat creates demand, professions create supply, and city markets decide who gets rich.",
+          "author": "Makgura Team",
+          "publishedAt": "2026-05-04",
+          "imageStyle": "radial-gradient(circle at 22% 30%, rgba(214,168,90,.42), transparent 22%), radial-gradient(circle at 78% 28%, rgba(63,125,78,.28), transparent 24%), radial-gradient(circle at 52% 78%, rgba(184,50,42,.24), transparent 24%), linear-gradient(135deg,#12120d,#2c2414 48%,#070706)",
+          "imageUrl": ""
+        },
+        {
           "id": "makgura-founder-city-land-nfts",
           "status": "published",
           "featured": true,
