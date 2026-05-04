@@ -76,7 +76,7 @@ const landPlotCards = [
   { title: "Medium Plot NFTs", text: "210 total medium home plots across all capitals. Medium plots cost 0.5 SOL each." },
   { title: "Large Plot NFTs", text: "90 total large home plots across all capitals. Large plots cost 1 SOL each." },
 ];
-const nftStats = [["603", "Total NFTs"], ["3", "Founder City NFTs"], ["600", "Home Plot NFTs"], ["600", "Plots Available"]];
+const nftStats = [["3", "Founder Capital City NFTs"], ["3", "Race Capitals"], ["3", "Land Plot Sizes"], ["600", "Plots Available"]];
 const founderCityDrops = [
   { race: "Roman Empire", name: "Rome Founder Capital City NFT", symbol: "ROMA", price: "100 SOL", supply: "1 Founder Capital City NFT", plots: "300 home plots", small: "150 small", medium: "105 medium", large: "45 large", perk: "The biggest capital city ownership asset, tied to Rome's political center, capital governance identity, and the largest land market.", accent: "#B8322A", logo: factionLogoPaths.rome },
   { race: "Egypt", name: "Egypt Founder Capital City NFT", symbol: "EGYPT", price: "50 SOL", supply: "1 Founder Capital City NFT", plots: "200 home plots", small: "100 small", medium: "70 medium", large: "30 large", perk: "The middle-size capital city ownership asset, tied to Egypt's trade identity, land value, housing market, and capital-city prestige.", accent: "#2D80C5", logo: factionLogoPaths.egypt },
@@ -85,7 +85,7 @@ const founderCityDrops = [
 const landPlotDrops = [
   { size: "Small", name: "Small Capital Home Plot NFT", price: "0.15 SOL", supply: "300 total: Rome 150, Egypt 100, Barbarians 50", perk: "Entry-level capital real estate for future player housing, personal identity, and city presence." },
   { size: "Medium", name: "Medium Capital Home Plot NFT", price: "0.5 SOL", supply: "210 total: Rome 105, Egypt 70, Barbarians 35", perk: "Expanded housing footprint with more room for upgrades, storage flavor, decorations, and stronger location value." },
-  { size: "Large", name: "Large Capital Home Plot NFT", price: "1 SOL", supply: "90 total: Rome 45, Egypt 30, Barbarians 15", perk: "Scarce high-value capital property for serious players, guild-adjacent housing, and premium city placement." },
+  { size: "Large", name: "Large Capital Home Plot NFT", price: "1 SOL", supply: "90 total: Rome 45, Egypt 30, Barbarians 15", perk: "Scarce high-value capital property for serious players, guild-adjacent housing, and high-value city placement." },
 ];
 const nftHowItWorks = [
   "Founder Capital City NFTs are one-of-one assets for Rome, Egypt, and the Barbarian Horde.",
