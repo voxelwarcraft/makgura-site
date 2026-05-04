@@ -267,7 +267,7 @@ function BlogModal({ post, onClose }) {
 function NftSaleHud() {
   return (
     <div className="nft-sale-hud">
-      <div className="hud-title"><div><p>Genesis Ownership</p><h3>Founder Cities + Land</h3></div><span>603 NFTs</span></div>
+      <div className="hud-title"><div><p>Genesis Ownership</p><h3>Founder Cities + Land</h3></div></div>
       <div className="nft-city-map">
         {founderCityDrops.map((drop) => (
           <div className="nft-city-node" key={drop.name} style={{ "--nft-accent": drop.accent }}>
