@@ -77,6 +77,28 @@ const landPlotCards = [
   { title: "Large Plots", text: "High-value capital property for serious players, guild-adjacent housing, and premium city placement." },
   { title: "Premium Locations", text: "Rare plots near important capital districts can be priced higher based on visibility and location value." },
 ];
+const nftStats = [["3", "Founder Capital City NFTs"], ["3", "Race Capitals"], ["4", "Land Plot Sizes"], ["0", "Combat Power Sold"]];
+const founderCityDrops = [
+  { race: "Roman Empire", name: "Rome Founder Capital City NFT", symbol: "ROMA", price: "TBA", supply: "1 Founder Capital City NFT", perk: "Top-level ownership asset for the Roman capital city. Governance and economy rights only matter when Rome controls its capital.", accent: "#B8322A", logo: factionLogoPaths.rome },
+  { race: "Barbarian Horde", name: "Horde Founder Capital City NFT", symbol: "HORDE", price: "TBA", supply: "1 Founder Capital City NFT", perk: "Top-level ownership asset for the Barbarian Horde capital, tied to raiding prestige, home-territory identity, and capital economy.", accent: "#3F7D4E", logo: factionLogoPaths.barbarian },
+  { race: "Egypt", name: "Egypt Founder Capital City NFT", symbol: "EGYPT", price: "TBA", supply: "1 Founder Capital City NFT", perk: "Top-level ownership asset for the Egyptian capital, tied to trade identity, land value, and capital-city prestige.", accent: "#2D80C5", logo: factionLogoPaths.egypt },
+];
+const landPlotDrops = [
+  { size: "Small", name: "Small Capital Land Plot", price: "TBA", supply: "Multiple per capital", perk: "Entry-level real estate for player housing, personal identity, and future house building inside a race capital." },
+  { size: "Medium", name: "Medium Capital Land Plot", price: "TBA", supply: "Limited per capital", perk: "Expanded housing footprint with more room for upgrades, storage flavor, decorations, and city presence." },
+  { size: "Large", name: "Large Capital Land Plot", price: "TBA", supply: "Scarce per capital", perk: "High-value capital property for serious players, guild-adjacent housing, and stronger location prestige." },
+  { size: "Premium", name: "Premium District Land Plot", price: "TBA", supply: "Rare locations", perk: "Rare plots near important capital districts, priced higher based on visibility, size, and placement value." },
+];
+const nftHowItWorks = [
+  "Founder Capital City NFTs are one-of-one assets for Rome, Horde, and Egypt.",
+  "Land plots are sold inside each capital city like real estate.",
+  "Plot pricing scales by size, district value, visibility, and location.",
+  "Players will be able to build houses on owned plots.",
+  "Housing creates demand for builders, furniture, storage upgrades, and crafted materials.",
+  "NFTs do not sell weapons, stats, or direct combat strength.",
+  "City ownership and land value still depend on gameplay, faction control, and active markets.",
+  "Future checkout and delivery can be tracked through the shared backend admin panel.",
+];
 const eventCards = [
   { eyebrow: "WORLD EVENT", title: "Gold Vein Spawns", text: "A high-value resource vein appears in a dangerous contested zone, lasts 10–14 days, then depletes and respawns somewhere else on the map." },
   { eyebrow: "CONTROL", title: "Outposts & Extraction", text: "Players build mining infrastructure, defend it, upgrade it, hold the area during extraction, and fight through vulnerability windows." },
@@ -244,14 +266,150 @@ function BlogModal({ post, onClose }) {
   );
 }
 
+function NftSaleHud() {
+  return (
+    <div className="nft-sale-hud">
+      <div className="hud-title"><div><p>Genesis Ownership</p><h3>Founder Cities + Land</h3></div><span>3 + plots</span></div>
+      <div className="nft-city-map">
+        {founderCityDrops.map((drop) => (
+          <div className="nft-city-node" key={drop.name} style={{ "--nft-accent": drop.accent }}>
+            <img src={drop.logo} alt={`${drop.race} logo`} />
+            <strong>{drop.symbol}</strong>
+            <span>1 Founder City NFT</span>
+          </div>
+        ))}
+      </div>
+      <div className="nft-plot-scale">
+        {landPlotDrops.map((plot, index) => <span key={plot.size} style={{ "--plot-level": index + 1 }}>{plot.size}</span>)}
+      </div>
+    </div>
+  );
+}
+
+function FounderCityCard({ drop, onAuthOpen }) {
+  return (
+    <article className="nft-drop-card founder" style={{ "--nft-accent": drop.accent }}>
+      <div className="nft-drop-art">
+        <span>{drop.race}</span>
+        <img src={drop.logo} alt={`${drop.race} logo`} />
+      </div>
+      <div className="nft-drop-body">
+        <div className="nft-drop-title"><div><h3>{drop.name}</h3><small>{drop.supply}</small></div><b>{drop.price}</b></div>
+        <p>{drop.perk}</p>
+        <div className="tag-list"><span>Founder City</span><span>1 of 1</span><span>No Combat Power</span></div>
+        <div className="button-row"><ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton><ShieldButton onClick={onAuthOpen}>Register Interest</ShieldButton></div>
+      </div>
+    </article>
+  );
+}
+
+function LandPlotCard({ plot, onAuthOpen }) {
+  return (
+    <article className="nft-drop-card plot">
+      <div className="nft-drop-art plot-art">
+        <span>{plot.size} Plot</span>
+        <div className="plot-symbol">{plot.size.slice(0, 1)}</div>
+      </div>
+      <div className="nft-drop-body">
+        <div className="nft-drop-title"><div><h3>{plot.name}</h3><small>{plot.supply}</small></div><b>{plot.price}</b></div>
+        <p>{plot.perk}</p>
+        <p><b>Pricing:</b> Based on plot size, district, visibility, and location value.</p>
+        <div className="button-row"><ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton><ShieldButton onClick={onAuthOpen}>Plot Details</ShieldButton></div>
+      </div>
+    </article>
+  );
+}
+
+function NftSalesPage({ onBack, onAuthOpen }) {
+  React.useEffect(() => {
+    document.title = "Makgura NFTs | Founder Cities and Land Plots";
+    let descriptionTag = document.querySelector('meta[name="description"]');
+    if (!descriptionTag) {
+      descriptionTag = document.createElement("meta");
+      descriptionTag.setAttribute("name", "description");
+      document.head.appendChild(descriptionTag);
+    }
+    descriptionTag.setAttribute("content", "Makgura NFTs include 3 Founder Capital City NFTs and capital-city land plots priced by size for future player-built houses.");
+  }, []);
+
+  return (
+    <>
+      <section className="hero nft-page-hero">
+        <div className="container hero-inner">
+          <div className="hero-copy">
+            <div className="hero-pills"><StatusPill>Founder NFT Sale</StatusPill><StatusPill>Cities. Land. Housing.</StatusPill></div>
+            <h1 className="makgura-logo">Makgura NFTs</h1>
+            <div className="makgura-subtitle">Founder cities and capital land plots.</div>
+            <p className="hero-text">Makgura's NFT page is built like Ujura's dedicated ownership page, but the assets are different: 3 Founder Capital City NFTs, one for each race capital, plus land plots inside those capitals priced by plot size for future player-built houses.</p>
+            <div className="hero-ctas"><ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton><ShieldButton onClick={onBack}>Back to Site</ShieldButton></div>
+          </div>
+          <NftSaleHud />
+        </div>
+        <div className="container stats-grid">{nftStats.map(([value, label]) => <MetricCard key={label} value={value} label={label} />)}</div>
+      </section>
+      <section className="section">
+        <div className="container">
+          <SectionHeading eyebrow="Founder Capital Cities" title="Three one-of-one capital city NFTs." text="Each race has one capital city ownership asset. These are not instant power items: value comes from city identity, faction control, governance potential, player activity, and the future capital real-estate economy." />
+          <div className="three-grid">{founderCityDrops.map((drop) => <FounderCityCard key={drop.name} drop={drop} onAuthOpen={onAuthOpen} />)}</div>
+        </div>
+      </section>
+      <section className="section">
+        <div className="container">
+          <SectionHeading eyebrow="Capital Land Plots" title="Real estate for player-built houses." text="Land plots are sold inside each capital city. Pricing scales by size and location, giving players a future place to build houses, show prestige, and participate in the city economy." />
+          <div className="four-grid">{landPlotDrops.map((plot) => <LandPlotCard key={plot.size} plot={plot} onAuthOpen={onAuthOpen} />)}</div>
+        </div>
+      </section>
+      <section className="section">
+        <div className="container two-col">
+          <div className="card big-panel"><div className="card-topline" /><div className="card-pattern" /><div className="eyebrow">How It Works</div><h3>NFT ownership supports the economy, not combat stats.</h3><p>Makgura NFTs are designed to create scarce city ownership and housing real estate. The war still belongs to players who level, fight, craft, trade, control territory, and defend what they own.</p></div>
+          <div className="mini-grid">{nftHowItWorks.map((item) => <div className="loop-item" key={item}><span>›</span><strong>{item}</strong></div>)}</div>
+        </div>
+      </section>
+    </>
+  );
+}
+
 export default function App() {
   const control = useSiteControl("makgura");
   const auth = useSharedAuth();
   const [authOpen, setAuthOpen] = useState(false);
   const [activePost, setActivePost] = useState(null);
+  const [activePage, setActivePage] = useState("home");
   const accountLabel = auth.user ? auth.user.email || "Account" : control.navigation?.walletLabel || "Connect Wallet";
   const visibleNavItems = control.blog?.enabled ? [...navItems, { label: "Blog", href: "#blog" }] : navItems;
-  usePostSeo(activePost, "Makgura | Ancient War MMO", "Makgura is a grounded ancient war MMO by Majori Games.");
+  usePostSeo(
+    activePost,
+    activePage === "nfts" ? "Makgura NFTs | Founder Cities and Land Plots" : "Makgura | Ancient War MMO",
+    activePage === "nfts" ? "Makgura NFTs include Founder Capital City NFTs and capital-city land plots for future player-built houses." : "Makgura is a grounded ancient war MMO by Majori Games.",
+  );
+
+  function scrollHome(href) {
+    setActivePage("home");
+    setTimeout(() => {
+      if (href === "#top") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+    }, 0);
+  }
+
+  function goHome() {
+    scrollHome("#top");
+  }
+
+  function goNfts() {
+    setActivePage("nfts");
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+  }
+
+  function handleNav(item) {
+    if (item.label === "NFTs") {
+      goNfts();
+      return;
+    }
+    scrollHome(item.href);
+  }
 
   function handleCta(cta) {
     if (cta?.action === "auth") {
@@ -260,29 +418,29 @@ export default function App() {
     }
     const href = cta?.href || "#vision";
     if (href.startsWith("#")) {
-      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+      scrollHome(href);
       return;
     }
     window.location.href = href;
   }
 
   return <div className="site-shell"><PremiumEffects /><div className="site-bg" /><div className="site-grid" />
-    <header className="site-header"><div className="header-inner"><a className="brand" href="#top" aria-label="Makgura home"><div className="brand-mark">M</div><div><div className="brand-name">MAKGURA</div><div className="brand-subtitle">Ancient War MMO</div></div></a><nav className="desktop-nav" aria-label="Primary navigation">{visibleNavItems.map((item,index)=><React.Fragment key={item.label}>{index!==0&&<span>•</span>}<a href={item.href}>{item.label}</a></React.Fragment>)}</nav><div className="header-actions">{control.toggles?.alphaAccessEnabled && <HeaderCommandButton primary onClick={() => setAuthOpen(true)}>{control.navigation?.playAlphaLabel || "Play Alpha"}</HeaderCommandButton>}{control.toggles?.walletButtonsEnabled && <HeaderCommandButton onClick={() => setAuthOpen(true)}>{accountLabel}</HeaderCommandButton>}</div><div className="mobile-action"><HeaderCommandButton primary onClick={() => setAuthOpen(true)}>{accountLabel}</HeaderCommandButton></div></div><div className="header-line" /></header>
+    <header className="site-header"><div className="header-inner"><a className="brand" href="#top" aria-label="Makgura home" onClick={(event)=>{event.preventDefault();goHome();}}><div className="brand-mark">M</div><div><div className="brand-name">MAKGURA</div><div className="brand-subtitle">Ancient War MMO</div></div></a><nav className="desktop-nav" aria-label="Primary navigation">{visibleNavItems.map((item,index)=><React.Fragment key={item.label}>{index!==0&&<span>•</span>}<button className="nav-link-button" onClick={() => handleNav(item)}>{item.label}</button></React.Fragment>)}</nav><div className="header-actions">{control.toggles?.alphaAccessEnabled && <HeaderCommandButton primary onClick={() => setAuthOpen(true)}>{control.navigation?.playAlphaLabel || "Play Alpha"}</HeaderCommandButton>}{control.toggles?.walletButtonsEnabled && <HeaderCommandButton onClick={() => setAuthOpen(true)}>{accountLabel}</HeaderCommandButton>}</div><div className="mobile-action"><HeaderCommandButton primary onClick={() => setAuthOpen(true)}>{accountLabel}</HeaderCommandButton></div></div><div className="header-line" /></header>
     {control.statusBanner?.enabled && control.statusBanner?.text && <div className="control-banner">{control.statusBanner.text}</div>}
-    <main id="top"><section className="hero"><div className="container hero-inner"><div className="hero-copy"><div className="hero-pills"><StatusPill>{control.hero?.badge || "Grounded Ancient War MMO"}</StatusPill><StatusPill>{control.hero?.factionBadge || "Rome. Barbarians. Egypt."}</StatusPill></div><h1 className="makgura-logo">{control.hero?.title || "Makgura"}</h1><div className="makgura-subtitle">{control.hero?.subtitle || "Level. Fight. Conquer."}</div><p className="hero-text">{control.hero?.body || "A persistent, player-driven war MMO where players level from 1-60, fight for Rome, the Barbarian Horde, or Egypt, become a Gladiator in Colosseum PvP, capture cities, control territory, and compete over dynamic world resources."}</p><div className="feature-grid">{heroFeatures.map((item)=><FeaturePill key={item}>{item}</FeaturePill>)}</div><div className="hero-ctas"><ShieldButton light onClick={() => handleCta(control.hero?.primaryCta)}>{control.hero?.primaryCta?.label || "Explore Makgura"}</ShieldButton><ShieldButton onClick={() => handleCta(control.hero?.secondaryCta)}>{control.hero?.secondaryCta?.label || "Read Whitepaper"}</ShieldButton></div></div><WarMapPanel /></div><div className="container stats-grid">{heroStats.map(([value,label])=><MetricCard key={label} value={value} label={label}/>)}</div></section>
+    <main id="top">{activePage === "nfts" ? <NftSalesPage onBack={goHome} onAuthOpen={() => setAuthOpen(true)} /> : <><section className="hero"><div className="container hero-inner"><div className="hero-copy"><div className="hero-pills"><StatusPill>{control.hero?.badge || "Grounded Ancient War MMO"}</StatusPill><StatusPill>{control.hero?.factionBadge || "Rome. Barbarians. Egypt."}</StatusPill></div><h1 className="makgura-logo">{control.hero?.title || "Makgura"}</h1><div className="makgura-subtitle">{control.hero?.subtitle || "Level. Fight. Conquer."}</div><p className="hero-text">{control.hero?.body || "A persistent, player-driven war MMO where players level from 1-60, fight for Rome, the Barbarian Horde, or Egypt, become a Gladiator in Colosseum PvP, capture cities, control territory, and compete over dynamic world resources."}</p><div className="feature-grid">{heroFeatures.map((item)=><FeaturePill key={item}>{item}</FeaturePill>)}</div><div className="hero-ctas"><ShieldButton light onClick={() => handleCta(control.hero?.primaryCta)}>{control.hero?.primaryCta?.label || "Explore Makgura"}</ShieldButton><ShieldButton onClick={() => handleCta(control.hero?.secondaryCta)}>{control.hero?.secondaryCta?.label || "Read Whitepaper"}</ShieldButton></div></div><WarMapPanel /></div><div className="container stats-grid">{heroStats.map(([value,label])=><MetricCard key={label} value={value} label={label}/>)}</div></section>
     <section id="vision" className="section"><div className="container two-col"><div><SectionHeading eyebrow="CORE VISION" title="WoW Classic Progression. DayZ Risk. EVE-Style Control." text="Makgura combines long-form leveling, meaningful death, player-driven economy, shifting territory, capital city governance, sieges, world events, and constant faction conflict into one ancient war MMO."/><div className="vision-stack">{visionCards.map((card)=><Card key={card.title} {...card}/>)}</div></div><LoopPanel /></div></section>
     <section id="factions" className="section"><div className="container"><SectionHeading eyebrow="PLAYABLE FACTIONS" title="Rome. Barbarians. Egypt." text="The game is primarily centered around Rome, but its world war is shaped by three playable powers with different identities, strengths, economies, and battlefield styles."/><div className="faction-grid">{factions.map((faction)=><FactionCard key={faction.title} faction={faction}/>)}</div></div></section>
     <section id="world" className="section"><div className="container two-col world-grid"><SectionHeading eyebrow="WORLD & GOVERNANCE" title="Cities can be attacked, captured, and governed." text="Major cities are economic and social hubs. Attackers breach gates, capture districts, and flip city control. Capital City NFTs act as permanent tradable deeds, but income and policy control only activate when the owner’s faction controls the city."/><div className="stack">{worldSystems.map((system)=><Card key={system.title} eyebrow={system.eyebrow} title={system.title} text={system.text}><TagList tags={system.tags}/></Card>)}</div></div></section>
     <section className="section"><div className="container"><SectionHeading eyebrow="DEATH & LAW" title="Inventory is at risk. Storage is safe. Crime has consequences." text="Makgura is built around risk versus recovery. Death matters, but players can rebuild through banks, housing, guild storage, crafting, trade, and smart preparation."/><div className="four-grid">{deathCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div></div></section>
     <section id="economy" className="section"><div className="container two-col"><div><SectionHeading eyebrow="ECONOMY" title="Cities, taxes, banks, housing, and trade." text="The economy is driven by marketplace trades, crafting fees, repairs, property taxes, storage, guild logistics, player housing, and faction control over valuable cities."/><div className="governor-card"><div className="eyebrow">Governor System</div><div className="heading-line"/><p>Governors earn a small percentage of city economic activity, such as 1–2%, while tax limits stay controlled around 2%–8%. High taxes reduce player activity, and cooldowns prevent constant abuse.</p></div></div><div className="two-card-grid">{economyCards.map((card)=><Card key={card.title} title={card.title} text={card.text}/>)}</div></div></section>
     <section id="professions" className="section"><div className="container"><SectionHeading eyebrow="PROFESSIONS & CRAFTING" title="A war economy needs workers, builders, and master crafters." text="Makgura professions let players build value outside pure combat. Gatherers, refiners, crafters, builders, traders, and guild suppliers all feed the same economy of gear loss, city markets, housing, sieges, and territory war."/><div className="four-grid">{professionCards.map((card)=><Card key={card.title} eyebrow={card.eyebrow} title={card.title} text={card.text}><TagList tags={card.tags}/></Card>)}</div><div className="four-grid after-banner">{craftingPillars.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div></div></section>
-    <section id="nfts" className="section"><div className="container"><SectionHeading eyebrow="NFT OWNERSHIP" title="Founder cities and capital land plots." text="Makgura NFTs are similar to Ujura's ownership layer, but built for ancient-world real estate. The core structure is 3 Founder Capital City NFTs, one for each race capital, plus land plots inside those cities priced by plot size for player-built houses."/><div className="four-grid">{nftCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="three-grid after-banner">{nftCapitalCards.map((card)=><Card key={card.title} eyebrow={card.eyebrow} title={card.title} text={card.text}><TagList tags={card.tags}/></Card>)}</div><div className="four-grid after-banner">{landPlotCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div></div></section>
+    <section id="nfts" className="section"><div className="container"><SectionHeading eyebrow="NFT OWNERSHIP" title="Founder cities and capital land plots." text="Makgura NFTs are similar to Ujura's ownership layer, but built for ancient-world real estate. The core structure is 3 Founder Capital City NFTs, one for each race capital, plus land plots inside those cities priced by plot size for player-built houses."/><div className="four-grid">{nftCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="three-grid after-banner">{nftCapitalCards.map((card)=><Card key={card.title} eyebrow={card.eyebrow} title={card.title} text={card.text}><TagList tags={card.tags}/></Card>)}</div><div className="four-grid after-banner">{landPlotCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="hero-ctas after-banner"><ShieldButton light onClick={goNfts}>Open NFT Page</ShieldButton></div></div></section>
     <section className="section"><div className="container"><SectionHeading eyebrow="DYNAMIC WORLD EVENTS" title="Gold veins create wars that move around the map." text="A high-value gold vein spawns in a dangerous contested region, gets announced, attracts players, triggers outpost building, creates extraction fights, then depletes and respawns elsewhere."/><div className="three-grid">{eventCards.map((card)=><Card key={card.title} {...card}/>)}</div></div></section>
     <section className="section"><div className="container"><DecreeBanner eyebrow="COLOSSEUM & MERCENARIES" title="Become a Gladiator in the Colosseum." text="Solo players can become Gladiators in ranked Colosseum PvP, fully level, craft, trade, bounty hunt, and temporarily join larger wars as mercenaries without needing to be permanently locked into a guild." cta={<ShieldButton light>Enter Colosseum</ShieldButton>}/><div className="two-card-grid after-banner">{soloGroupCards.map((card)=><Card key={card.title} title={card.title} text={card.text}/>)}</div></div></section>
     <section id="token" className="section"><div className="container"><SectionHeading eyebrow="MAKGURA COIN / MKG" title="A competitive reward token built to last decades." text="MKG is separate from in-game gold. It is earned through Gold Vein control and Top Gladiator performance, with predictable 22-minute reward intervals, 2-year halvings, and premium utility that never sells direct combat power."/><div className="four-grid">{tokenCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="two-card-grid after-banner">{tokenRewards.map((card)=><Card key={card.title} eyebrow={card.eyebrow} title={card.title} text={card.text}><TagList tags={card.tags}/></Card>)}</div><div className="map-stat-grid after-banner">{tokenDistribution.map(([value,label,detail])=><div key={label}><strong>{value}</strong><span>{label}<br />{detail}</span></div>)}</div><div className="three-grid after-banner">{tokenUtilityCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div></div></section>
     <section id="roadmap" className="section"><div className="container"><SectionHeading eyebrow="ROADMAP" title="Built around risk, recovery, and constant conflict." text="The roadmap prioritizes a real playable MMO foundation first, then expands into city sieges, economy systems, capital deeds, gold veins, outposts, Colosseum rewards, token emissions, and seasonal territory resets."/><div className="four-grid">{roadmap.map((item)=><Card key={item.eyebrow} {...item}/>)}</div></div></section>
     {control.blog?.enabled && <BlogSection blog={control.blog} onOpenPost={setActivePost} />}
-    <section className="section"><div className="container"><DecreeBanner eyebrow={control.alpha?.eyebrow || "FINAL IDENTITY"} title={control.alpha?.title || "A persistent player-driven war MMO."} text={control.alpha?.body || "Players level, fight, lose gear, become Gladiators in Colosseum PvP, control territory, govern cities, compete over dynamic resources, and reshape a constantly shifting ancient world."} cta={<div className="final-ctas"><ShieldButton light onClick={() => setAuthOpen(true)}>{control.alpha?.primaryCtaLabel || "Play Alpha"}</ShieldButton><ShieldButton onClick={() => setAuthOpen(true)}>{accountLabel}</ShieldButton></div>}/></div></section></main>
+    <section className="section"><div className="container"><DecreeBanner eyebrow={control.alpha?.eyebrow || "FINAL IDENTITY"} title={control.alpha?.title || "A persistent player-driven war MMO."} text={control.alpha?.body || "Players level, fight, lose gear, become Gladiators in Colosseum PvP, control territory, govern cities, compete over dynamic resources, and reshape a constantly shifting ancient world."} cta={<div className="final-ctas"><ShieldButton light onClick={() => setAuthOpen(true)}>{control.alpha?.primaryCtaLabel || "Play Alpha"}</ShieldButton><ShieldButton onClick={() => setAuthOpen(true)}>{accountLabel}</ShieldButton></div>}/></div></section></>}</main>
     <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} onAuthenticated={auth.refresh} user={auth.user} signOut={auth.signOut} /><BlogModal post={activePost} onClose={() => setActivePost(null)} /><footer className="site-footer"><div className="container footer-inner"><div><div className="footer-brand">Makgura</div><div className="footer-subtitle">A grounded ancient war MMO by Majori Games.</div></div><div className="footer-links">{["Discord","Whitepaper","Founders Pass","Terms","Privacy"].map((item)=><a key={item} href="#">{item}</a>)}</div></div></footer>
   </div>;
 }
