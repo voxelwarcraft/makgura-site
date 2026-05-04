@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import AuthModal from "./auth/AuthModal";
 import { useSharedAuth } from "./auth/sharedAuth";
+import { useSiteControl } from "./useSiteControl";
 
 const factionLogoPaths = {
   rome: "/rome_logo_clean.webp",
@@ -96,14 +97,131 @@ function LoopPanel() { return <div className="loop-panel"><div className="panel-
 function DecreeBanner({ eyebrow, title, text, cta }) { return <div className="decree-banner hover-card"><div className="panel-topline" /><div className="decree-glow" /><div><div className="eyebrow">{eyebrow}</div><h3>{title}</h3><p>{text}</p></div><div className="decree-cta">{cta}</div></div>; }
 function PremiumEffects() { return <div className="embers" aria-hidden="true"><span /><span /><span /><span /><span /><span /><span /></div>; }
 
+function getPublishedPosts(blog) {
+  return (blog?.posts || [])
+    .filter((post) => post.status === "published")
+    .sort((a, b) => {
+      if (a.featured !== b.featured) return a.featured ? -1 : 1;
+      return String(b.publishedAt || "").localeCompare(String(a.publishedAt || ""));
+    });
+}
+
+function blogArtStyle(post) {
+  if (post.imageUrl) {
+    return {
+      backgroundImage: `linear-gradient(rgba(0,0,0,.16), rgba(0,0,0,.32)), url("${post.imageUrl}")`,
+      backgroundPosition: "center",
+      backgroundSize: "cover",
+    };
+  }
+  return { background: post.imageStyle || "radial-gradient(circle at 50% 10%, rgba(240,179,91,.42), transparent 22%), linear-gradient(135deg,#1a0d09,#070606)" };
+}
+
+function formatPostDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+function usePostSeo(post, fallbackTitle, fallbackDescription) {
+  React.useEffect(() => {
+    const previousTitle = document.title;
+    let descriptionTag = document.querySelector('meta[name="description"]');
+    const previousDescription = descriptionTag?.getAttribute("content") || "";
+    if (!descriptionTag) {
+      descriptionTag = document.createElement("meta");
+      descriptionTag.setAttribute("name", "description");
+      document.head.appendChild(descriptionTag);
+    }
+
+    document.title = post?.seoTitle || post?.title || fallbackTitle;
+    descriptionTag.setAttribute("content", post?.seoDescription || post?.excerpt || fallbackDescription);
+
+    return () => {
+      document.title = previousTitle;
+      descriptionTag.setAttribute("content", previousDescription);
+    };
+  }, [post, fallbackTitle, fallbackDescription]);
+}
+
+function BlogSection({ blog, onOpenPost }) {
+  const posts = getPublishedPosts(blog);
+  if (posts.length === 0) return null;
+
+  return (
+    <section id="blog" className="section">
+      <div className="container">
+        <SectionHeading eyebrow={blog.eyebrow || "War Chronicle"} title={blog.title || "Makgura dispatches from the front."} text={blog.intro || "Development updates and worldbuilding notes from Makgura."} />
+        <div className="three-grid">
+          {posts.map((post) => (
+            <article className="blog-card hover-card" key={post.id || post.slug || post.title}>
+              <div className="blog-art" style={blogArtStyle(post)}><span>{post.category}</span></div>
+              <div className="blog-body">
+                <div className="blog-meta">
+                  {post.publishedAt && <span>{formatPostDate(post.publishedAt)}</span>}
+                  {post.featured && <span>Featured</span>}
+                </div>
+                <h3>{post.title}</h3>
+                <p>{post.excerpt}</p>
+                <button className="blog-link" onClick={() => onOpenPost(post)}>Read Chronicle →</button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BlogModal({ post, onClose }) {
+  if (!post) return null;
+  return (
+    <div className="blog-modal">
+      <article className="blog-modal-card">
+        <div className="blog-modal-art" style={blogArtStyle(post)} />
+        <div className="blog-modal-body">
+          <div className="blog-meta">
+            <span>{post.category}</span>
+            {post.publishedAt && <span>{formatPostDate(post.publishedAt)}</span>}
+            {post.author && <span>By {post.author}</span>}
+          </div>
+          <h2>{post.title}</h2>
+          <p className="blog-excerpt">{post.excerpt}</p>
+          <div className="blog-fulltext">{post.body}</div>
+          <ShieldButton light onClick={onClose}>Close Chronicle</ShieldButton>
+        </div>
+      </article>
+    </div>
+  );
+}
+
 export default function App() {
+  const control = useSiteControl("makgura");
   const auth = useSharedAuth();
   const [authOpen, setAuthOpen] = useState(false);
-  const accountLabel = auth.user ? auth.user.email || "Account" : "Connect Wallet";
+  const [activePost, setActivePost] = useState(null);
+  const accountLabel = auth.user ? auth.user.email || "Account" : control.navigation?.walletLabel || "Connect Wallet";
+  const visibleNavItems = control.blog?.enabled ? [...navItems, { label: "Blog", href: "#blog" }] : navItems;
+  usePostSeo(activePost, "Makgura | Ancient War MMO", "Makgura is a grounded ancient war MMO by Majori Games.");
+
+  function handleCta(cta) {
+    if (cta?.action === "auth") {
+      setAuthOpen(true);
+      return;
+    }
+    const href = cta?.href || "#vision";
+    if (href.startsWith("#")) {
+      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    window.location.href = href;
+  }
 
   return <div className="site-shell"><PremiumEffects /><div className="site-bg" /><div className="site-grid" />
-    <header className="site-header"><div className="header-inner"><a className="brand" href="#top" aria-label="Makgura home"><div className="brand-mark">M</div><div><div className="brand-name">MAKGURA</div><div className="brand-subtitle">Ancient War MMO</div></div></a><nav className="desktop-nav" aria-label="Primary navigation">{navItems.map((item,index)=><React.Fragment key={item.label}>{index!==0&&<span>•</span>}<a href={item.href}>{item.label}</a></React.Fragment>)}</nav><div className="header-actions"><HeaderCommandButton primary onClick={() => setAuthOpen(true)}>Play Alpha</HeaderCommandButton><HeaderCommandButton onClick={() => setAuthOpen(true)}>{accountLabel}</HeaderCommandButton></div><div className="mobile-action"><HeaderCommandButton primary onClick={() => setAuthOpen(true)}>{accountLabel}</HeaderCommandButton></div></div><div className="header-line" /></header>
-    <main id="top"><section className="hero"><div className="container hero-inner"><div className="hero-copy"><div className="hero-pills"><StatusPill>Grounded Ancient War MMO</StatusPill><StatusPill>Rome. Barbarians. Egypt.</StatusPill></div><h1 className="makgura-logo">Makgura</h1><div className="makgura-subtitle">Level. Fight. Conquer.</div><p className="hero-text">A persistent, player-driven war MMO where players level from 1–60, fight for Rome, the Barbarian Horde, or Egypt, capture cities, control territory, and compete over dynamic world resources.</p><div className="feature-grid">{heroFeatures.map((item)=><FeaturePill key={item}>{item}</FeaturePill>)}</div><div className="hero-ctas"><ShieldButton light>Explore Makgura</ShieldButton><ShieldButton>Read Whitepaper</ShieldButton></div></div><WarMapPanel /></div><div className="container stats-grid">{heroStats.map(([value,label])=><MetricCard key={label} value={value} label={label}/>)}</div></section>
+    <header className="site-header"><div className="header-inner"><a className="brand" href="#top" aria-label="Makgura home"><div className="brand-mark">M</div><div><div className="brand-name">MAKGURA</div><div className="brand-subtitle">Ancient War MMO</div></div></a><nav className="desktop-nav" aria-label="Primary navigation">{visibleNavItems.map((item,index)=><React.Fragment key={item.label}>{index!==0&&<span>•</span>}<a href={item.href}>{item.label}</a></React.Fragment>)}</nav><div className="header-actions">{control.toggles?.alphaAccessEnabled && <HeaderCommandButton primary onClick={() => setAuthOpen(true)}>{control.navigation?.playAlphaLabel || "Play Alpha"}</HeaderCommandButton>}{control.toggles?.walletButtonsEnabled && <HeaderCommandButton onClick={() => setAuthOpen(true)}>{accountLabel}</HeaderCommandButton>}</div><div className="mobile-action"><HeaderCommandButton primary onClick={() => setAuthOpen(true)}>{accountLabel}</HeaderCommandButton></div></div><div className="header-line" /></header>
+    {control.statusBanner?.enabled && control.statusBanner?.text && <div className="control-banner">{control.statusBanner.text}</div>}
+    <main id="top"><section className="hero"><div className="container hero-inner"><div className="hero-copy"><div className="hero-pills"><StatusPill>{control.hero?.badge || "Grounded Ancient War MMO"}</StatusPill><StatusPill>{control.hero?.factionBadge || "Rome. Barbarians. Egypt."}</StatusPill></div><h1 className="makgura-logo">{control.hero?.title || "Makgura"}</h1><div className="makgura-subtitle">{control.hero?.subtitle || "Level. Fight. Conquer."}</div><p className="hero-text">{control.hero?.body || "A persistent, player-driven war MMO where players level from 1-60, fight for Rome, the Barbarian Horde, or Egypt, capture cities, control territory, and compete over dynamic world resources."}</p><div className="feature-grid">{heroFeatures.map((item)=><FeaturePill key={item}>{item}</FeaturePill>)}</div><div className="hero-ctas"><ShieldButton light onClick={() => handleCta(control.hero?.primaryCta)}>{control.hero?.primaryCta?.label || "Explore Makgura"}</ShieldButton><ShieldButton onClick={() => handleCta(control.hero?.secondaryCta)}>{control.hero?.secondaryCta?.label || "Read Whitepaper"}</ShieldButton></div></div><WarMapPanel /></div><div className="container stats-grid">{heroStats.map(([value,label])=><MetricCard key={label} value={value} label={label}/>)}</div></section>
     <section id="vision" className="section"><div className="container two-col"><div><SectionHeading eyebrow="CORE VISION" title="WoW Classic Progression. DayZ Risk. EVE-Style Control." text="Makgura combines long-form leveling, meaningful death, player-driven economy, shifting territory, capital city governance, sieges, world events, and constant faction conflict into one ancient war MMO."/><div className="vision-stack">{visionCards.map((card)=><Card key={card.title} {...card}/>)}</div></div><LoopPanel /></div></section>
     <section id="factions" className="section"><div className="container"><SectionHeading eyebrow="PLAYABLE FACTIONS" title="Rome. Barbarians. Egypt." text="The game is primarily centered around Rome, but its world war is shaped by three playable powers with different identities, strengths, economies, and battlefield styles."/><div className="faction-grid">{factions.map((faction)=><FactionCard key={faction.title} faction={faction}/>)}</div></div></section>
     <section id="world" className="section"><div className="container two-col world-grid"><SectionHeading eyebrow="WORLD & GOVERNANCE" title="Cities can be attacked, captured, and governed." text="Major cities are economic and social hubs. Attackers breach gates, capture districts, and flip city control. Capital City NFTs act as permanent tradable deeds, but income and policy control only activate when the owner’s faction controls the city."/><div className="stack">{worldSystems.map((system)=><Card key={system.title} eyebrow={system.eyebrow} title={system.title} text={system.text}><TagList tags={system.tags}/></Card>)}</div></div></section>
@@ -113,7 +231,8 @@ export default function App() {
     <section className="section"><div className="container"><DecreeBanner eyebrow="COLOSSEUM & MERCENARIES" title="Solo players still matter." text="Solo players can fully level, compete in ranked Colosseum arenas, craft, trade, bounty hunt, and temporarily join larger wars as mercenaries without needing to be permanently locked into a guild." cta={<ShieldButton light>Enter Colosseum</ShieldButton>}/><div className="two-card-grid after-banner">{soloGroupCards.map((card)=><Card key={card.title} title={card.title} text={card.text}/>)}</div></div></section>
     <section id="token" className="section"><div className="container"><SectionHeading eyebrow="TOKEN & OWNERSHIP" title="Blockchain rewards without pay-to-win." text="Makgura separates normal gameplay currency from blockchain rewards. Off-chain gold powers the game economy. The token exists as an endgame reward layer, while NFTs represent ownership or prestige rather than combat strength."/><div className="four-grid">{tokenCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div></div></section>
     <section id="roadmap" className="section"><div className="container"><SectionHeading eyebrow="ROADMAP" title="Built around risk, recovery, and constant conflict." text="The roadmap prioritizes a real playable MMO foundation first, then expands into city sieges, economy systems, capital deeds, gold veins, outposts, Colosseum rewards, token emissions, and seasonal territory resets."/><div className="four-grid">{roadmap.map((item)=><Card key={item.eyebrow} {...item}/>)}</div></div></section>
-    <section className="section"><div className="container"><DecreeBanner eyebrow="FINAL IDENTITY" title="A persistent player-driven war MMO." text="Players level, fight, lose gear, control territory, govern cities, compete over dynamic resources, and reshape a constantly shifting ancient world." cta={<div className="final-ctas"><ShieldButton light onClick={() => setAuthOpen(true)}>Play Alpha</ShieldButton><ShieldButton onClick={() => setAuthOpen(true)}>{accountLabel}</ShieldButton></div>}/></div></section></main>
-    <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} onAuthenticated={auth.refresh} user={auth.user} signOut={auth.signOut} /><footer className="site-footer"><div className="container footer-inner"><div><div className="footer-brand">Makgura</div><div className="footer-subtitle">A grounded ancient war MMO by Majori Games.</div></div><div className="footer-links">{["Discord","Whitepaper","Founders Pass","Terms","Privacy"].map((item)=><a key={item} href="#">{item}</a>)}</div></div></footer>
+    {control.blog?.enabled && <BlogSection blog={control.blog} onOpenPost={setActivePost} />}
+    <section className="section"><div className="container"><DecreeBanner eyebrow={control.alpha?.eyebrow || "FINAL IDENTITY"} title={control.alpha?.title || "A persistent player-driven war MMO."} text={control.alpha?.body || "Players level, fight, lose gear, control territory, govern cities, compete over dynamic resources, and reshape a constantly shifting ancient world."} cta={<div className="final-ctas"><ShieldButton light onClick={() => setAuthOpen(true)}>{control.alpha?.primaryCtaLabel || "Play Alpha"}</ShieldButton><ShieldButton onClick={() => setAuthOpen(true)}>{accountLabel}</ShieldButton></div>}/></div></section></main>
+    <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} onAuthenticated={auth.refresh} user={auth.user} signOut={auth.signOut} /><BlogModal post={activePost} onClose={() => setActivePost(null)} /><footer className="site-footer"><div className="container footer-inner"><div><div className="footer-brand">Makgura</div><div className="footer-subtitle">A grounded ancient war MMO by Majori Games.</div></div><div className="footer-links">{["Discord","Whitepaper","Founders Pass","Terms","Privacy"].map((item)=><a key={item} href="#">{item}</a>)}</div></div></footer>
   </div>;
 }
