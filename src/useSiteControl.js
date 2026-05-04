@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { defaultControlState, mergeControlState } from "./controlDefaults";
 
-const CENTRAL_CONTROL_URL = "https://www.majorigames.com/api/site-control";
+const CENTRAL_CONTROL_URL = "https://www.majorigames.com/api/admin/config";
 let cachedControlState = null;
 
 async function fetchControlState() {
