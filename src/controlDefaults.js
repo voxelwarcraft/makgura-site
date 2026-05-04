@@ -222,6 +222,22 @@ export const defaultControlState = {
       "intro": "Development updates, worldbuilding notes, faction reveals, and economy design for Makgura.",
       "posts": [
         {
+          "id": "makgura-founder-city-land-nfts",
+          "status": "published",
+          "featured": true,
+          "category": "NFT Ownership",
+          "title": "Makgura NFTs focus on founder cities and land plots",
+          "slug": "makgura-founder-city-land-nfts",
+          "excerpt": "Makgura NFTs are built around 3 Founder Capital City NFTs and capital-city land plots priced by size for future player housing.",
+          "seoTitle": "Makgura Founder City and Land Plot NFTs",
+          "seoDescription": "Makgura NFTs include 3 Founder Capital City NFTs, one per race capital, plus capital-city land plots priced by size for player-built houses.",
+          "body": "Makgura NFTs are similar to Ujura because they represent scarce ownership, but the structure is different. Makgura is built around ancient-world real estate, capital cities, faction identity, and player housing.\n\nThe top layer is 3 Founder Capital City NFTs. There is one Founder Capital City NFT for each race capital: Rome, the Barbarian Horde, and Egypt. These represent the highest-level ownership assets tied to the capital cities.\n\nBelow the Founder Capital City NFTs, Makgura will offer land plots inside each capital city. These plots work like real estate for player houses that players will be able to build in the future.\n\nLand plot pricing is based on plot size and location value. Small, medium, large, and premium plots can support different housing footprints, prestige levels, and placement inside the capital city.\n\nThe design goal is ownership and prestige, not pay-to-win. Founder city NFTs and land plots can matter socially and economically, but they do not sell weapons, stats, or direct combat strength.",
+          "author": "Makgura Team",
+          "publishedAt": "2026-05-04",
+          "imageStyle": "radial-gradient(circle at 24% 28%, rgba(184,50,42,.40), transparent 22%), radial-gradient(circle at 78% 24%, rgba(45,128,197,.28), transparent 24%), radial-gradient(circle at 48% 76%, rgba(214,168,90,.38), transparent 28%), linear-gradient(135deg,#130d09,#2b1c10 48%,#070606)",
+          "imageUrl": ""
+        },
+        {
           "id": "makgura-coin-mkg-token-design",
           "status": "published",
           "featured": true,
