@@ -76,7 +76,7 @@ const landPlotCards = [
   { title: "Medium Plot NFTs", text: "210 total medium home plots across all capitals. Medium plots cost 0.5 SOL each." },
   { title: "Large Plot NFTs", text: "90 total large home plots across all capitals. Large plots cost 1 SOL each." },
 ];
-const nftStats = [["603", "Total NFTs"], ["3", "Founder City NFTs"], ["600", "Home Plot NFTs"], ["0", "Combat Power Sold"]];
+const nftStats = [["603", "Total NFTs"], ["3", "Founder City NFTs"], ["600", "Home Plot NFTs"], ["600", "Plots Available"]];
 const founderCityDrops = [
   { race: "Roman Empire", name: "Rome Founder Capital City NFT", symbol: "ROMA", price: "100 SOL", supply: "1 Founder Capital City NFT", plots: "300 home plots", small: "150 small", medium: "105 medium", large: "45 large", perk: "The biggest capital city ownership asset, tied to Rome's political center, capital governance identity, and the largest land market.", accent: "#B8322A", logo: factionLogoPaths.rome },
   { race: "Egypt", name: "Egypt Founder Capital City NFT", symbol: "EGYPT", price: "50 SOL", supply: "1 Founder Capital City NFT", plots: "200 home plots", small: "100 small", medium: "70 medium", large: "30 large", perk: "The middle-size capital city ownership asset, tied to Egypt's trade identity, land value, housing market, and capital-city prestige.", accent: "#2D80C5", logo: factionLogoPaths.egypt },
