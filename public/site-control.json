@@ -190,7 +190,7 @@
       "factionBadge": "Rome. Barbarians. Egypt.",
       "title": "Makgura",
       "subtitle": "Level. Fight. Conquer.",
-      "body": "A persistent, player-driven war MMO where players level from 1-60, fight for Rome, the Barbarian Horde, or Egypt, capture cities, control territory, and compete over dynamic world resources.",
+      "body": "A persistent, player-driven war MMO where players level from 1-60, fight for Rome, the Barbarian Horde, or Egypt, become a Gladiator in Colosseum PvP, capture cities, control territory, and compete over dynamic world resources.",
       "primaryCta": {
         "label": "Explore Makgura",
         "href": "#vision"
@@ -212,7 +212,7 @@
     "alpha": {
       "eyebrow": "Final Identity",
       "title": "A persistent player-driven war MMO.",
-      "body": "Players level, fight, lose gear, control territory, govern cities, compete over dynamic resources, and reshape a constantly shifting ancient world.",
+      "body": "Players level, fight, lose gear, become Gladiators in Colosseum PvP, control territory, govern cities, compete over dynamic resources, and reshape a constantly shifting ancient world.",
       "primaryCtaLabel": "Play Alpha"
     },
     "blog": {
@@ -228,10 +228,10 @@
           "category": "World Design",
           "title": "Risk, territory, and recovery define Makgura",
           "slug": "risk-territory-and-recovery-define-makgura",
-          "excerpt": "Makgura connects leveling, faction war, city control, loot risk, banks, housing, and world events into one ancient war MMO loop.",
+          "excerpt": "Makgura connects leveling, faction war, Colosseum Gladiator PvP, city control, loot risk, banks, housing, and world events into one ancient war MMO loop.",
           "seoTitle": "Risk, territory, and recovery define Makgura",
-          "seoDescription": "Makgura connects leveling, faction war, city control, loot risk, banks, housing, and world events into one ancient war MMO loop.",
-          "body": "Makgura is built around a simple promise: the world should remember what players do. Leveling, faction choice, death risk, city control, resource conflict, safe storage, and recovery systems all connect so war has weight without permanently trapping players after a loss.",
+          "seoDescription": "Makgura connects leveling, faction war, Colosseum Gladiator PvP, city control, loot risk, banks, housing, and world events into one ancient war MMO loop.",
+          "body": "Makgura is built around a simple promise: the world should remember what players do. Leveling, faction choice, Gladiator ranks in Colosseum PvP, death risk, city control, resource conflict, safe storage, and recovery systems all connect so war has weight without permanently trapping players after a loss.",
           "author": "Makgura Team",
           "publishedAt": "2026-05-04",
           "imageStyle": "radial-gradient(circle at 50% 10%, rgba(240,179,91,.62), transparent 22%), radial-gradient(circle at 18% 65%, rgba(193,72,35,.30), transparent 28%), linear-gradient(135deg, #1a0d09 0%, #321b0f 45%, #070606 100%)",
