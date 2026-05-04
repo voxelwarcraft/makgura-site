@@ -131,6 +131,32 @@ const tokenUtilityCards = [
   { title: "Market Fee Reduction", text: "Long-term holders can reduce marketplace taxes and trading fees, rewarding active traders and crafters." },
   { title: "Post-Emission Value", text: "After emissions end, gold veins and Gladiator competition can continue around prestige, rare items, and recognition." },
 ];
+const mkgDetails = [
+  { label: "Max Supply", value: "8M", caption: "Only 8,000,000 MKG can ever exist" },
+  { label: "Player Rewards", value: "60%", caption: "4,800,000 MKG earned through Gold Vein and Gladiator systems" },
+  { label: "Seed Round", value: "10%", caption: "800,000 MKG at $0.05" },
+  { label: "Public Sale", value: "15%", caption: "1,200,000 MKG at $0.10" },
+  { label: "Team / Dev", value: "10%", caption: "800,000 MKG for building Makgura" },
+  { label: "Treasury", value: "5%", caption: "400,000 MKG ecosystem reserve" },
+];
+const mkgDistribution = [
+  { name: "Player Rewards", percent: 60, amount: "4,800,000 MKG", note: "Earned through Gold Vein control and Top Gladiator PvP" },
+  { name: "Public Seed Round", percent: 10, amount: "800,000 MKG", note: "$0.05 per MKG" },
+  { name: "Public Sale", percent: 15, amount: "1,200,000 MKG", note: "$0.10 per MKG" },
+  { name: "Team / Dev", percent: 10, amount: "800,000 MKG", note: "Development allocation" },
+  { name: "Treasury", percent: 5, amount: "400,000 MKG", note: "Ecosystem reserve" },
+];
+const mkgSeedPackages = [
+  { amount: "5,000 MKG", price: "$250", tag: "Scout" },
+  { amount: "20,000 MKG", price: "$1,000", tag: "Captain" },
+  { amount: "100,000 MKG", price: "$5,000", tag: "Founder" },
+];
+const mkgUtility = [
+  "Vote on game direction, balance changes, events, and long-term Makgura ecosystem decisions",
+  "Access cosmetics, visual upgrades, status unlocks, and prestige rewards without selling combat power",
+  "Hold MKG for premium game perks like global bank storage expansion, XP quality-of-life boosts, and market fee reduction",
+  "A planned share of future game revenue generated from Makgura NFT sales, subject to final legal structure and approved distribution mechanics",
+];
 const roadmap = [
   { eyebrow: "PHASE 01", title: "World & Factions", text: "Rome, Barbarian Horde, and Egypt identity; faction regions; cities; law zones; class direction; and the core 1–60 leveling plan." },
   { eyebrow: "PHASE 02", title: "Combat & Progression", text: "Real-time MMO combat, PvE enemies, PvP rules, gear progression, death and loot logic, banks, housing, and early dungeon prototypes." },
@@ -319,6 +345,22 @@ function LandPlotCard({ plot, onAuthOpen }) {
   );
 }
 
+function TokenStat({ value, label, caption }) {
+  return <div className="mkg-token-stat"><strong>{value}</strong><span>{label}</span><small>{caption}</small></div>;
+}
+
+function MkgDistributionBars() {
+  return <div className="mkg-distribution"><p className="eyebrow">MKG Distribution</p>{mkgDistribution.map((item) => <div className="mkg-dist-row" key={item.name}><div className="mkg-dist-label"><span><b>{item.name}</b><small>{item.amount} · {item.note}</small></span><strong>{item.percent}%</strong></div><div className="mkg-progress"><span style={{ width: item.percent + "%" }} /></div></div>)}<p className="eyebrow utility-title">MKG Utility</p><div className="mkg-utility-list">{mkgUtility.map((item) => <div className="mkg-mini-line" key={item}>{item}</div>)}</div></div>;
+}
+
+function MkgSeedCheckout({ onAuthOpen }) {
+  return <div className="mkg-token-panel mkg-seed-checkout"><p className="eyebrow">Buy MKG</p><h2>Public Seed Checkout</h2><p>The public seed round is 10% of supply: 800,000 MKG at $0.05 per coin. Public sale later is 15% of supply: 1,200,000 MKG at $0.10 per coin.</p><div className="mkg-price-pair"><div><small>Public Seed Round</small><b>$0.05</b><span>800,000 MKG · 10%</span></div><div><small>Public Sale</small><b>$0.10</b><span>1,200,000 MKG · 15%</span></div></div>{mkgSeedPackages.map((pack) => <button className="mkg-allocation" key={pack.tag} type="button"><span><small>{pack.tag}</small><b>{pack.amount}</b></span><strong>{pack.price}</strong></button>)}<div className="mkg-input-box"><small>Custom MKG Amount</small><div><input placeholder="50,000" /><span>MKG</span></div><p><span>Estimated cost</span><b>$2,500.00</b></p></div><div className="button-row"><ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton><ShieldButton onClick={onAuthOpen}>Purchase MKG</ShieldButton></div><p className="mkg-disclaimer">Legal review, KYC/AML, smart contract audits, jurisdiction rules, vesting, revenue-share eligibility, and risk disclosures are required before any real sale or NFT revenue-sharing mechanism.</p></div>;
+}
+
+function MkgTokenSection({ onAuthOpen }) {
+  return <section id="token" className="section"><div className="container"><SectionHeading eyebrow="MAKGURA COIN / MKG" title="Seed round: $0.05 per MKG. Public sale: $0.10 per MKG." text="MKG mirrors the UJU coin structure for the Majori ecosystem: 8,000,000 max supply, 10% public seed round, 15% public sale, long-term player rewards, and premium utility that does not sell combat power." /><div className="mkg-token-grid"><div className="mkg-token-panel"><div className="mkg-token-head"><div><p className="eyebrow">Token Overview</p><h2>MKG Coin</h2><p>MKG holders can vote on Makgura direction, access cosmetics, receive in-game utility like bank storage expansion, XP quality-of-life boosts, lower market fees, and are planned to receive a share of future NFT revenue subject to final legal structure.</p></div><div className="mkg-mark">MKG</div></div><div className="mkg-token-stats">{mkgDetails.map((item) => <TokenStat key={item.label} value={item.value} label={item.label} caption={item.caption} />)}</div><MkgDistributionBars /></div><MkgSeedCheckout onAuthOpen={onAuthOpen} /></div></div></section>;
+}
+
 function NftSalesPage({ onBack, onAuthOpen }) {
   React.useEffect(() => {
     document.title = "Makgura NFTs | Founder Cities and Land Plots";
@@ -436,7 +478,7 @@ export default function App() {
     <section id="nfts" className="section"><div className="container"><SectionHeading eyebrow="NFT OWNERSHIP" title="Founder cities and capital land plots." text="Makgura NFTs are similar to Ujura's ownership layer, but built for ancient-world real estate. The core structure is 3 Founder Capital City NFTs plus 600 home plot NFTs: Rome has 300 plots and a 100 SOL founder city NFT, Egypt has 200 plots and a 50 SOL founder city NFT, and Barbarians have 100 plots and a 25 SOL founder city NFT."/><div className="four-grid">{nftCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="three-grid after-banner">{nftCapitalCards.map((card)=><Card key={card.title} eyebrow={card.eyebrow} title={card.title} text={card.text}><TagList tags={card.tags}/></Card>)}</div><div className="four-grid after-banner">{landPlotCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="hero-ctas after-banner"><ShieldButton light onClick={goNfts}>Open NFT Page</ShieldButton></div></div></section>
     <section className="section"><div className="container"><SectionHeading eyebrow="DYNAMIC WORLD EVENTS" title="Gold veins create wars that move around the map." text="A high-value gold vein spawns in a dangerous contested region, gets announced, attracts players, triggers outpost building, creates extraction fights, then depletes and respawns elsewhere."/><div className="three-grid">{eventCards.map((card)=><Card key={card.title} {...card}/>)}</div></div></section>
     <section className="section"><div className="container"><DecreeBanner eyebrow="COLOSSEUM & MERCENARIES" title="Become a Gladiator in the Colosseum." text="Solo players can become Gladiators in ranked Colosseum PvP, fully level, craft, trade, bounty hunt, and temporarily join larger wars as mercenaries without needing to be permanently locked into a guild." cta={<ShieldButton light>Enter Colosseum</ShieldButton>}/><div className="two-card-grid after-banner">{soloGroupCards.map((card)=><Card key={card.title} title={card.title} text={card.text}/>)}</div></div></section>
-    <section id="token" className="section"><div className="container"><SectionHeading eyebrow="MAKGURA COIN / MKG" title="A competitive reward token built to last decades." text="MKG is separate from in-game gold. It is earned through Gold Vein control and Top Gladiator performance, with predictable 22-minute reward intervals, 2-year halvings, and premium utility that never sells direct combat power."/><div className="four-grid">{tokenCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="two-card-grid after-banner">{tokenRewards.map((card)=><Card key={card.title} eyebrow={card.eyebrow} title={card.title} text={card.text}><TagList tags={card.tags}/></Card>)}</div><div className="map-stat-grid after-banner">{tokenDistribution.map(([value,label,detail])=><div key={label}><strong>{value}</strong><span>{label}<br />{detail}</span></div>)}</div><div className="three-grid after-banner">{tokenUtilityCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div></div></section>
+    <MkgTokenSection onAuthOpen={() => setAuthOpen(true)} />
     <section id="roadmap" className="section"><div className="container"><SectionHeading eyebrow="ROADMAP" title="Built around risk, recovery, and constant conflict." text="The roadmap prioritizes a real playable MMO foundation first, then expands into city sieges, economy systems, capital deeds, gold veins, outposts, Colosseum rewards, token emissions, and seasonal territory resets."/><div className="four-grid">{roadmap.map((item)=><Card key={item.eyebrow} {...item}/>)}</div></div></section>
     {control.blog?.enabled && <BlogSection blog={control.blog} onOpenPost={setActivePost} />}
     <section className="section"><div className="container"><DecreeBanner eyebrow={control.alpha?.eyebrow || "FINAL IDENTITY"} title={control.alpha?.title || "A persistent player-driven war MMO."} text={control.alpha?.body || "Players level, fight, lose gear, become Gladiators in Colosseum PvP, control territory, govern cities, compete over dynamic resources, and reshape a constantly shifting ancient world."} cta={<div className="final-ctas"><ShieldButton light onClick={() => setAuthOpen(true)}>{control.alpha?.primaryCtaLabel || "Play Alpha"}</ShieldButton><ShieldButton onClick={() => setAuthOpen(true)}>{accountLabel}</ShieldButton></div>}/></div></section></>}</main>
