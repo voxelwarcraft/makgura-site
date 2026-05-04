@@ -5,9 +5,9 @@ import { useSharedAuth } from "./auth/sharedAuth";
 import { useSiteControl } from "./useSiteControl";
 
 const factionLogoPaths = {
-  rome: "/rome_logo_clean.webp",
-  barbarian: "/barbarian_logo_clean.webp",
-  egypt: "/egypt_logo_clean.webp",
+  rome: "/rome_logo_transparent.png",
+  barbarian: "/barbarian_logo_transparent.png",
+  egypt: "/egypt_logo_transparent.png",
 };
 
 const navItems = ["Vision", "Factions", "World", "Economy", "Token", "Roadmap"].map((label) => ({
