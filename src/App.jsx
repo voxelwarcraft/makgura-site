@@ -61,43 +61,41 @@ const craftingPillars = [
   { title: "War Supply Chains", text: "Sieges and raids need food, potions, weapons, repairs, outpost supplies, and replacement gear after costly PvP losses." },
 ];
 const nftCards = [
-  { title: "3 Founder Capital City NFTs", text: "One Founder Capital City NFT exists for each race capital: Rome, the Barbarian Horde, and Egypt. These are the top-level ownership assets for the capital cities." },
-  { title: "Capital Land Plots", text: "Land plots are sold inside each capital city like real estate. Players can own locations where future player houses can be built." },
-  { title: "Priced By Plot Size", text: "Plot pricing scales by size, location, and value. Small, medium, large, and premium plots can support different housing and prestige opportunities." },
+  { title: "603 Total NFTs", text: "Makgura's first NFT structure is 3 Founder Capital City NFTs plus 600 capital-city home plot NFTs across Rome, Egypt, and the Barbarian capital." },
+  { title: "3 Founder Capital City NFTs", text: "One Founder Capital City NFT exists for each race capital: Rome, Egypt, and the Barbarian Horde." },
+  { title: "600 Home Plot NFTs", text: "Capital land plots are sold like real estate for future player houses: 300 in Rome, 200 in Egypt, and 100 in the Barbarian capital." },
   { title: "Not Pay-To-Win", text: "Founder city NFTs and land plots create ownership, housing, prestige, and economy rights. They do not sell weapons, stats, or direct combat strength." },
 ];
 const nftCapitalCards = [
-  { eyebrow: "FOUNDER CITY NFT", title: "Rome Capital", text: "The Roman capital city NFT represents the empire's central ownership layer. Income and governance only matter when Rome controls its capital.", tags: ["1 NFT", "Empire", "Capital Governance"] },
-  { eyebrow: "FOUNDER CITY NFT", title: "Horde Capital", text: "The Barbarian Horde capital city NFT anchors the raiding faction's home territory and prestige economy.", tags: ["1 NFT", "Warbands", "Capital Governance"] },
-  { eyebrow: "FOUNDER CITY NFT", title: "Egypt Capital", text: "The Egyptian capital city NFT anchors the river kingdom's trade identity, housing market, and capital ownership layer.", tags: ["1 NFT", "Trade", "Capital Governance"] },
+  { eyebrow: "FOUNDER CITY NFT", title: "Rome Capital", text: "The largest capital city. Founder price is 100 SOL with 300 total home plot NFTs: 150 small, 105 medium, and 45 large.", tags: ["100 SOL", "300 Plots", "Largest Capital"] },
+  { eyebrow: "FOUNDER CITY NFT", title: "Egypt Capital", text: "The middle-size capital city. Founder price is 50 SOL with 200 total home plot NFTs: 100 small, 70 medium, and 30 large.", tags: ["50 SOL", "200 Plots", "Trade Capital"] },
+  { eyebrow: "FOUNDER CITY NFT", title: "Barbarian Capital", text: "The smallest capital city. Founder price is 25 SOL with 100 total home plot NFTs: 50 small, 35 medium, and 15 large.", tags: ["25 SOL", "100 Plots", "Warband Capital"] },
 ];
 const landPlotCards = [
-  { title: "Small Plots", text: "Entry real estate for personal houses, starter prestige, and safe city identity." },
-  { title: "Medium Plots", text: "Larger housing footprints with more room for upgrades, storage flavor, and social presence." },
-  { title: "Large Plots", text: "High-value capital property for serious players, guild-adjacent housing, and premium city placement." },
-  { title: "Premium Locations", text: "Rare plots near important capital districts can be priced higher based on visibility and location value." },
+  { title: "Small Plot NFTs", text: "300 total small home plots across all capitals. Small plots cost 0.15 SOL each." },
+  { title: "Medium Plot NFTs", text: "210 total medium home plots across all capitals. Medium plots cost 0.5 SOL each." },
+  { title: "Large Plot NFTs", text: "90 total large home plots across all capitals. Large plots cost 1 SOL each." },
 ];
-const nftStats = [["3", "Founder Capital City NFTs"], ["3", "Race Capitals"], ["4", "Land Plot Sizes"], ["0", "Combat Power Sold"]];
+const nftStats = [["603", "Total NFTs"], ["3", "Founder City NFTs"], ["600", "Home Plot NFTs"], ["0", "Combat Power Sold"]];
 const founderCityDrops = [
-  { race: "Roman Empire", name: "Rome Founder Capital City NFT", symbol: "ROMA", price: "TBA", supply: "1 Founder Capital City NFT", perk: "Top-level ownership asset for the Roman capital city. Governance and economy rights only matter when Rome controls its capital.", accent: "#B8322A", logo: factionLogoPaths.rome },
-  { race: "Barbarian Horde", name: "Horde Founder Capital City NFT", symbol: "HORDE", price: "TBA", supply: "1 Founder Capital City NFT", perk: "Top-level ownership asset for the Barbarian Horde capital, tied to raiding prestige, home-territory identity, and capital economy.", accent: "#3F7D4E", logo: factionLogoPaths.barbarian },
-  { race: "Egypt", name: "Egypt Founder Capital City NFT", symbol: "EGYPT", price: "TBA", supply: "1 Founder Capital City NFT", perk: "Top-level ownership asset for the Egyptian capital, tied to trade identity, land value, and capital-city prestige.", accent: "#2D80C5", logo: factionLogoPaths.egypt },
+  { race: "Roman Empire", name: "Rome Founder Capital City NFT", symbol: "ROMA", price: "100 SOL", supply: "1 Founder Capital City NFT", plots: "300 home plots", small: "150 small", medium: "105 medium", large: "45 large", perk: "The biggest capital city ownership asset, tied to Rome's political center, capital governance identity, and the largest land market.", accent: "#B8322A", logo: factionLogoPaths.rome },
+  { race: "Egypt", name: "Egypt Founder Capital City NFT", symbol: "EGYPT", price: "50 SOL", supply: "1 Founder Capital City NFT", plots: "200 home plots", small: "100 small", medium: "70 medium", large: "30 large", perk: "The middle-size capital city ownership asset, tied to Egypt's trade identity, land value, housing market, and capital-city prestige.", accent: "#2D80C5", logo: factionLogoPaths.egypt },
+  { race: "Barbarian Horde", name: "Barbarian Founder Capital City NFT", symbol: "HORDE", price: "25 SOL", supply: "1 Founder Capital City NFT", plots: "100 home plots", small: "50 small", medium: "35 medium", large: "15 large", perk: "The smallest capital city ownership asset, tied to raiding prestige, warband identity, and a tighter land market.", accent: "#3F7D4E", logo: factionLogoPaths.barbarian },
 ];
 const landPlotDrops = [
-  { size: "Small", name: "Small Capital Land Plot", price: "TBA", supply: "Multiple per capital", perk: "Entry-level real estate for player housing, personal identity, and future house building inside a race capital." },
-  { size: "Medium", name: "Medium Capital Land Plot", price: "TBA", supply: "Limited per capital", perk: "Expanded housing footprint with more room for upgrades, storage flavor, decorations, and city presence." },
-  { size: "Large", name: "Large Capital Land Plot", price: "TBA", supply: "Scarce per capital", perk: "High-value capital property for serious players, guild-adjacent housing, and stronger location prestige." },
-  { size: "Premium", name: "Premium District Land Plot", price: "TBA", supply: "Rare locations", perk: "Rare plots near important capital districts, priced higher based on visibility, size, and placement value." },
+  { size: "Small", name: "Small Capital Home Plot NFT", price: "0.15 SOL", supply: "300 total: Rome 150, Egypt 100, Barbarians 50", perk: "Entry-level capital real estate for future player housing, personal identity, and city presence." },
+  { size: "Medium", name: "Medium Capital Home Plot NFT", price: "0.5 SOL", supply: "210 total: Rome 105, Egypt 70, Barbarians 35", perk: "Expanded housing footprint with more room for upgrades, storage flavor, decorations, and stronger location value." },
+  { size: "Large", name: "Large Capital Home Plot NFT", price: "1 SOL", supply: "90 total: Rome 45, Egypt 30, Barbarians 15", perk: "Scarce high-value capital property for serious players, guild-adjacent housing, and premium city placement." },
 ];
 const nftHowItWorks = [
-  "Founder Capital City NFTs are one-of-one assets for Rome, Horde, and Egypt.",
-  "Land plots are sold inside each capital city like real estate.",
-  "Plot pricing scales by size, district value, visibility, and location.",
-  "Players will be able to build houses on owned plots.",
+  "Founder Capital City NFTs are one-of-one assets for Rome, Egypt, and the Barbarian Horde.",
+  "Rome is the biggest capital: 100 SOL founder city NFT and 300 home plot NFTs.",
+  "Egypt is the middle capital: 50 SOL founder city NFT and 200 home plot NFTs.",
+  "Barbarians are the smallest capital: 25 SOL founder city NFT and 100 home plot NFTs.",
+  "Small plots cost 0.15 SOL, medium plots cost 0.5 SOL, and large plots cost 1 SOL.",
+  "Players will be able to build houses on owned capital plots.",
   "Housing creates demand for builders, furniture, storage upgrades, and crafted materials.",
   "NFTs do not sell weapons, stats, or direct combat strength.",
-  "City ownership and land value still depend on gameplay, faction control, and active markets.",
-  "Future checkout and delivery can be tracked through the shared backend admin panel.",
 ];
 const eventCards = [
   { eyebrow: "WORLD EVENT", title: "Gold Vein Spawns", text: "A high-value resource vein appears in a dangerous contested zone, lasts 10–14 days, then depletes and respawns somewhere else on the map." },
@@ -269,7 +267,7 @@ function BlogModal({ post, onClose }) {
 function NftSaleHud() {
   return (
     <div className="nft-sale-hud">
-      <div className="hud-title"><div><p>Genesis Ownership</p><h3>Founder Cities + Land</h3></div><span>3 + plots</span></div>
+      <div className="hud-title"><div><p>Genesis Ownership</p><h3>Founder Cities + Land</h3></div><span>603 NFTs</span></div>
       <div className="nft-city-map">
         {founderCityDrops.map((drop) => (
           <div className="nft-city-node" key={drop.name} style={{ "--nft-accent": drop.accent }}>
@@ -296,6 +294,7 @@ function FounderCityCard({ drop, onAuthOpen }) {
       <div className="nft-drop-body">
         <div className="nft-drop-title"><div><h3>{drop.name}</h3><small>{drop.supply}</small></div><b>{drop.price}</b></div>
         <p>{drop.perk}</p>
+        <div className="plot-breakdown"><span>{drop.plots}</span><span>{drop.small}</span><span>{drop.medium}</span><span>{drop.large}</span></div>
         <div className="tag-list"><span>Founder City</span><span>1 of 1</span><span>No Combat Power</span></div>
         <div className="button-row"><ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton><ShieldButton onClick={onAuthOpen}>Register Interest</ShieldButton></div>
       </div>
@@ -313,7 +312,7 @@ function LandPlotCard({ plot, onAuthOpen }) {
       <div className="nft-drop-body">
         <div className="nft-drop-title"><div><h3>{plot.name}</h3><small>{plot.supply}</small></div><b>{plot.price}</b></div>
         <p>{plot.perk}</p>
-        <p><b>Pricing:</b> Based on plot size, district, visibility, and location value.</p>
+        <p><b>Pricing:</b> Small 0.15 SOL, medium 0.5 SOL, large 1 SOL.</p>
         <div className="button-row"><ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton><ShieldButton onClick={onAuthOpen}>Plot Details</ShieldButton></div>
       </div>
     </article>
@@ -329,7 +328,7 @@ function NftSalesPage({ onBack, onAuthOpen }) {
       descriptionTag.setAttribute("name", "description");
       document.head.appendChild(descriptionTag);
     }
-    descriptionTag.setAttribute("content", "Makgura NFTs include 3 Founder Capital City NFTs and capital-city land plots priced by size for future player-built houses.");
+    descriptionTag.setAttribute("content", "Makgura NFTs include 3 Founder Capital City NFTs and 600 capital-city home plot NFTs with published SOL pricing by race and plot size.");
   }, []);
 
   return (
@@ -340,7 +339,7 @@ function NftSalesPage({ onBack, onAuthOpen }) {
             <div className="hero-pills"><StatusPill>Founder NFT Sale</StatusPill><StatusPill>Cities. Land. Housing.</StatusPill></div>
             <h1 className="makgura-logo">Makgura NFTs</h1>
             <div className="makgura-subtitle">Founder cities and capital land plots.</div>
-            <p className="hero-text">Makgura's NFT page is built like Ujura's dedicated ownership page, but the assets are different: 3 Founder Capital City NFTs, one for each race capital, plus land plots inside those capitals priced by plot size for future player-built houses.</p>
+            <p className="hero-text">Makgura's NFT page is built like Ujura's dedicated ownership page, but the assets are different: 3 Founder Capital City NFTs plus 600 capital-city home plot NFTs. Rome is the largest at 100 SOL with 300 plots, Egypt is 50 SOL with 200 plots, and Barbarians are 25 SOL with 100 plots.</p>
             <div className="hero-ctas"><ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton><ShieldButton onClick={onBack}>Back to Site</ShieldButton></div>
           </div>
           <NftSaleHud />
@@ -349,13 +348,13 @@ function NftSalesPage({ onBack, onAuthOpen }) {
       </section>
       <section className="section">
         <div className="container">
-          <SectionHeading eyebrow="Founder Capital Cities" title="Three one-of-one capital city NFTs." text="Each race has one capital city ownership asset. These are not instant power items: value comes from city identity, faction control, governance potential, player activity, and the future capital real-estate economy." />
+          <SectionHeading eyebrow="Founder Capital Cities" title="Three one-of-one capital city NFTs." text="Each race has one capital city ownership asset with fixed founder pricing and fixed home plot supply. These are not instant power items: value comes from city identity, faction control, player activity, and the future capital real-estate economy." />
           <div className="three-grid">{founderCityDrops.map((drop) => <FounderCityCard key={drop.name} drop={drop} onAuthOpen={onAuthOpen} />)}</div>
         </div>
       </section>
       <section className="section">
         <div className="container">
-          <SectionHeading eyebrow="Capital Land Plots" title="Real estate for player-built houses." text="Land plots are sold inside each capital city. Pricing scales by size and location, giving players a future place to build houses, show prestige, and participate in the city economy." />
+          <SectionHeading eyebrow="Capital Land Plots" title="Real estate for player-built houses." text="Land plots are sold inside each capital city as small, medium, and large home plot NFTs. Small plots cost 0.15 SOL, medium plots cost 0.5 SOL, and large plots cost 1 SOL." />
           <div className="four-grid">{landPlotDrops.map((plot) => <LandPlotCard key={plot.size} plot={plot} onAuthOpen={onAuthOpen} />)}</div>
         </div>
       </section>
@@ -380,7 +379,7 @@ export default function App() {
   usePostSeo(
     activePost,
     activePage === "nfts" ? "Makgura NFTs | Founder Cities and Land Plots" : "Makgura | Ancient War MMO",
-    activePage === "nfts" ? "Makgura NFTs include Founder Capital City NFTs and capital-city land plots for future player-built houses." : "Makgura is a grounded ancient war MMO by Majori Games.",
+    activePage === "nfts" ? "Makgura NFTs include 3 Founder Capital City NFTs and 600 home plot NFTs priced by race and plot size." : "Makgura is a grounded ancient war MMO by Majori Games.",
   );
 
   function scrollHome(href) {
@@ -434,7 +433,7 @@ export default function App() {
     <section className="section"><div className="container"><SectionHeading eyebrow="DEATH & LAW" title="Inventory is at risk. Storage is safe. Crime has consequences." text="Makgura is built around risk versus recovery. Death matters, but players can rebuild through banks, housing, guild storage, crafting, trade, and smart preparation."/><div className="four-grid">{deathCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div></div></section>
     <section id="economy" className="section"><div className="container two-col"><div><SectionHeading eyebrow="ECONOMY" title="Cities, taxes, banks, housing, and trade." text="The economy is driven by marketplace trades, crafting fees, repairs, property taxes, storage, guild logistics, player housing, and faction control over valuable cities."/><div className="governor-card"><div className="eyebrow">Governor System</div><div className="heading-line"/><p>Governors earn a small percentage of city economic activity, such as 1–2%, while tax limits stay controlled around 2%–8%. High taxes reduce player activity, and cooldowns prevent constant abuse.</p></div></div><div className="two-card-grid">{economyCards.map((card)=><Card key={card.title} title={card.title} text={card.text}/>)}</div></div></section>
     <section id="professions" className="section"><div className="container"><SectionHeading eyebrow="PROFESSIONS & CRAFTING" title="A war economy needs workers, builders, and master crafters." text="Makgura professions let players build value outside pure combat. Gatherers, refiners, crafters, builders, traders, and guild suppliers all feed the same economy of gear loss, city markets, housing, sieges, and territory war."/><div className="four-grid">{professionCards.map((card)=><Card key={card.title} eyebrow={card.eyebrow} title={card.title} text={card.text}><TagList tags={card.tags}/></Card>)}</div><div className="four-grid after-banner">{craftingPillars.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div></div></section>
-    <section id="nfts" className="section"><div className="container"><SectionHeading eyebrow="NFT OWNERSHIP" title="Founder cities and capital land plots." text="Makgura NFTs are similar to Ujura's ownership layer, but built for ancient-world real estate. The core structure is 3 Founder Capital City NFTs, one for each race capital, plus land plots inside those cities priced by plot size for player-built houses."/><div className="four-grid">{nftCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="three-grid after-banner">{nftCapitalCards.map((card)=><Card key={card.title} eyebrow={card.eyebrow} title={card.title} text={card.text}><TagList tags={card.tags}/></Card>)}</div><div className="four-grid after-banner">{landPlotCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="hero-ctas after-banner"><ShieldButton light onClick={goNfts}>Open NFT Page</ShieldButton></div></div></section>
+    <section id="nfts" className="section"><div className="container"><SectionHeading eyebrow="NFT OWNERSHIP" title="Founder cities and capital land plots." text="Makgura NFTs are similar to Ujura's ownership layer, but built for ancient-world real estate. The core structure is 3 Founder Capital City NFTs plus 600 home plot NFTs: Rome has 300 plots and a 100 SOL founder city NFT, Egypt has 200 plots and a 50 SOL founder city NFT, and Barbarians have 100 plots and a 25 SOL founder city NFT."/><div className="four-grid">{nftCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="three-grid after-banner">{nftCapitalCards.map((card)=><Card key={card.title} eyebrow={card.eyebrow} title={card.title} text={card.text}><TagList tags={card.tags}/></Card>)}</div><div className="four-grid after-banner">{landPlotCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="hero-ctas after-banner"><ShieldButton light onClick={goNfts}>Open NFT Page</ShieldButton></div></div></section>
     <section className="section"><div className="container"><SectionHeading eyebrow="DYNAMIC WORLD EVENTS" title="Gold veins create wars that move around the map." text="A high-value gold vein spawns in a dangerous contested region, gets announced, attracts players, triggers outpost building, creates extraction fights, then depletes and respawns elsewhere."/><div className="three-grid">{eventCards.map((card)=><Card key={card.title} {...card}/>)}</div></div></section>
     <section className="section"><div className="container"><DecreeBanner eyebrow="COLOSSEUM & MERCENARIES" title="Become a Gladiator in the Colosseum." text="Solo players can become Gladiators in ranked Colosseum PvP, fully level, craft, trade, bounty hunt, and temporarily join larger wars as mercenaries without needing to be permanently locked into a guild." cta={<ShieldButton light>Enter Colosseum</ShieldButton>}/><div className="two-card-grid after-banner">{soloGroupCards.map((card)=><Card key={card.title} title={card.title} text={card.text}/>)}</div></div></section>
     <section id="token" className="section"><div className="container"><SectionHeading eyebrow="MAKGURA COIN / MKG" title="A competitive reward token built to last decades." text="MKG is separate from in-game gold. It is earned through Gold Vein control and Top Gladiator performance, with predictable 22-minute reward intervals, 2-year halvings, and premium utility that never sells direct combat power."/><div className="four-grid">{tokenCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="two-card-grid after-banner">{tokenRewards.map((card)=><Card key={card.title} eyebrow={card.eyebrow} title={card.title} text={card.text}><TagList tags={card.tags}/></Card>)}</div><div className="map-stat-grid after-banner">{tokenDistribution.map(([value,label,detail])=><div key={label}><strong>{value}</strong><span>{label}<br />{detail}</span></div>)}</div><div className="three-grid after-banner">{tokenUtilityCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div></div></section>
