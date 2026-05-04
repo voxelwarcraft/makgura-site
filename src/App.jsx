@@ -58,10 +58,29 @@ const soloGroupCards = [
   { title: "Groups & Guilds", text: "Groups control territory, capture cities, dominate resources, run dungeons, fight raids, manage guild banks, and lead large-scale warfare." },
 ];
 const tokenCards = [
-  { title: "Gameplay Currency Stays Off-Chain", text: "Gold and normal economy activity stay in-game. The blockchain token is an endgame reward only, not a gameplay advantage." },
-  { title: "No Pay-To-Win", text: "NFTs represent ownership or prestige systems, not combat power. Tokens should not let players buy strength." },
-  { title: "8M Token Supply", text: "Total token supply is approximately 8,000,000, distributed across players, dev team, treasury, and public sale." },
-  { title: "20-Minute Emissions", text: "Reward emissions occur around every 20 minutes with halvings approximately every 2 years." },
+  { title: "8M Max Supply", text: "Makgura Coin (MKG) has a fixed max supply of 8,000,000 tokens, with 4,800,000 reserved for long-term player rewards." },
+  { title: "22-Minute Rewards", text: "MKG emits through competitive systems roughly every 22 minutes, keeping reward timing simple and predictable." },
+  { title: "2-Year Halvings", text: "Global emissions halve every 2 years, creating Bitcoin-style scarcity cycles over a 20-25 year reward timeline." },
+  { title: "No Combat Power", text: "MKG is a premium utility and prestige token. It does not sell direct strength, weapons, stats, or pay-to-win advantages." },
+];
+const tokenRewards = [
+  { eyebrow: "PRIMARY REWARD", title: "Gold Vein Control", text: "Contested gold veins generate an initial 40 MKG per reward interval. Guilds must control, mine, defend, and survive large-scale PvP pressure to keep earning.", tags: ["40 MKG / 22 MIN", "Guild Warfare", "Territory Control"] },
+  { eyebrow: "SECONDARY REWARD", title: "Top Gladiator", text: "The top-ranked PvP Gladiator earns an initial 10 MKG per reward interval, giving solo and small-scale fighters a prestige path beside guild warfare.", tags: ["10 MKG / 22 MIN", "Colosseum PvP", "Solo Prestige"] },
+];
+const tokenDistribution = [
+  ["60%", "Player Rewards", "4,800,000 MKG"],
+  ["15%", "Public Sale", "1,200,000 MKG"],
+  ["10%", "Seed Round", "800,000 MKG"],
+  ["10%", "Team / Development", "800,000 MKG"],
+  ["5%", "Treasury", "400,000 MKG"],
+];
+const tokenUtilityCards = [
+  { title: "Cosmetics & Prestige", text: "Exclusive skins, visual upgrades, status unlocks, and rare recognition without selling combat power." },
+  { title: "Governance", text: "MKG holders can vote on game updates, balance changes, event decisions, and long-term ecosystem direction." },
+  { title: "Bank Storage", text: "Holding MKG can expand global bank capacity and storage slots while keeping housing storage separate." },
+  { title: "Passive XP Boost", text: "Holding MKG can grant a small capped XP boost around 5%, designed as quality-of-life rather than advantage abuse." },
+  { title: "Market Fee Reduction", text: "Long-term holders can reduce marketplace taxes and trading fees, rewarding active traders and crafters." },
+  { title: "Post-Emission Value", text: "After emissions end, gold veins and Gladiator competition can continue around prestige, rare items, and recognition." },
 ];
 const roadmap = [
   { eyebrow: "PHASE 01", title: "World & Factions", text: "Rome, Barbarian Horde, and Egypt identity; faction regions; cities; law zones; class direction; and the core 1–60 leveling plan." },
@@ -229,7 +248,7 @@ export default function App() {
     <section id="economy" className="section"><div className="container two-col"><div><SectionHeading eyebrow="ECONOMY" title="Cities, taxes, banks, housing, and trade." text="The economy is driven by marketplace trades, crafting fees, repairs, property taxes, storage, guild logistics, player housing, and faction control over valuable cities."/><div className="governor-card"><div className="eyebrow">Governor System</div><div className="heading-line"/><p>Governors earn a small percentage of city economic activity, such as 1–2%, while tax limits stay controlled around 2%–8%. High taxes reduce player activity, and cooldowns prevent constant abuse.</p></div></div><div className="two-card-grid">{economyCards.map((card)=><Card key={card.title} title={card.title} text={card.text}/>)}</div></div></section>
     <section className="section"><div className="container"><SectionHeading eyebrow="DYNAMIC WORLD EVENTS" title="Gold veins create wars that move around the map." text="A high-value gold vein spawns in a dangerous contested region, gets announced, attracts players, triggers outpost building, creates extraction fights, then depletes and respawns elsewhere."/><div className="three-grid">{eventCards.map((card)=><Card key={card.title} {...card}/>)}</div></div></section>
     <section className="section"><div className="container"><DecreeBanner eyebrow="COLOSSEUM & MERCENARIES" title="Become a Gladiator in the Colosseum." text="Solo players can become Gladiators in ranked Colosseum PvP, fully level, craft, trade, bounty hunt, and temporarily join larger wars as mercenaries without needing to be permanently locked into a guild." cta={<ShieldButton light>Enter Colosseum</ShieldButton>}/><div className="two-card-grid after-banner">{soloGroupCards.map((card)=><Card key={card.title} title={card.title} text={card.text}/>)}</div></div></section>
-    <section id="token" className="section"><div className="container"><SectionHeading eyebrow="TOKEN & OWNERSHIP" title="Blockchain rewards without pay-to-win." text="Makgura separates normal gameplay currency from blockchain rewards. Off-chain gold powers the game economy. The token exists as an endgame reward layer, while NFTs represent ownership or prestige rather than combat strength."/><div className="four-grid">{tokenCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div></div></section>
+    <section id="token" className="section"><div className="container"><SectionHeading eyebrow="MAKGURA COIN / MKG" title="A competitive reward token built to last decades." text="MKG is separate from in-game gold. It is earned through Gold Vein control and Top Gladiator performance, with predictable 22-minute reward intervals, 2-year halvings, and premium utility that never sells direct combat power."/><div className="four-grid">{tokenCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="two-card-grid after-banner">{tokenRewards.map((card)=><Card key={card.title} eyebrow={card.eyebrow} title={card.title} text={card.text}><TagList tags={card.tags}/></Card>)}</div><div className="map-stat-grid after-banner">{tokenDistribution.map(([value,label,detail])=><div key={label}><strong>{value}</strong><span>{label}<br />{detail}</span></div>)}</div><div className="three-grid after-banner">{tokenUtilityCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div></div></section>
     <section id="roadmap" className="section"><div className="container"><SectionHeading eyebrow="ROADMAP" title="Built around risk, recovery, and constant conflict." text="The roadmap prioritizes a real playable MMO foundation first, then expands into city sieges, economy systems, capital deeds, gold veins, outposts, Colosseum rewards, token emissions, and seasonal territory resets."/><div className="four-grid">{roadmap.map((item)=><Card key={item.eyebrow} {...item}/>)}</div></div></section>
     {control.blog?.enabled && <BlogSection blog={control.blog} onOpenPost={setActivePost} />}
     <section className="section"><div className="container"><DecreeBanner eyebrow={control.alpha?.eyebrow || "FINAL IDENTITY"} title={control.alpha?.title || "A persistent player-driven war MMO."} text={control.alpha?.body || "Players level, fight, lose gear, become Gladiators in Colosseum PvP, control territory, govern cities, compete over dynamic resources, and reshape a constantly shifting ancient world."} cta={<div className="final-ctas"><ShieldButton light onClick={() => setAuthOpen(true)}>{control.alpha?.primaryCtaLabel || "Play Alpha"}</ShieldButton><ShieldButton onClick={() => setAuthOpen(true)}>{accountLabel}</ShieldButton></div>}/></div></section></main>

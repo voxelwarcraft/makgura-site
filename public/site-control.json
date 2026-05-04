@@ -222,6 +222,22 @@
       "intro": "Development updates, worldbuilding notes, faction reveals, and economy design for Makgura.",
       "posts": [
         {
+          "id": "makgura-coin-mkg-token-design",
+          "status": "published",
+          "featured": true,
+          "category": "Token Design",
+          "title": "Makgura Coin (MKG) powers competitive rewards",
+          "slug": "makgura-coin-mkg-token-design",
+          "excerpt": "MKG is Makgura's premium reward token, earned through Gold Vein control and Top Gladiator PvP with 22-minute emissions and 2-year halvings.",
+          "seoTitle": "Makgura Coin (MKG) Token Design",
+          "seoDescription": "MKG is Makgura's premium reward token with an 8M max supply, Gold Vein and Top Gladiator rewards, 22-minute emissions, and 2-year halvings.",
+          "body": "MAKGURA (MKG) is the premium ecosystem token for the Makgura MMO. It is separate from normal in-game currency and is earned through competitive gameplay systems rather than bought power.\n\nMax supply is fixed at 8,000,000 MKG. Distribution is planned as 60% player rewards (4,800,000 MKG), 15% public sale (1,200,000 MKG), 10% seed round (800,000 MKG), 10% team and development (800,000 MKG), and 5% treasury (400,000 MKG).\n\nMKG uses simple Bitcoin-style scarcity: rewards emit roughly every 22 minutes and halve globally every 2 years. The goal is a long 20-25 year emission timeline with strong early incentives and a long tail of competitive rewards.\n\nThere are two primary earning paths. Gold Vein Control is the main guild-scale path, starting at 40 MKG per interval for groups that control, mine, and defend contested resource zones. Top Gladiator is the solo and small-scale path, starting at 10 MKG per interval for the highest-ranked PvP Gladiator.\n\nTogether, those systems start at 50 MKG per reward interval, matching the clean total-emission structure used across the Majori Games ecosystem while splitting Makgura rewards between territory warfare and Colosseum PvP excellence.\n\nUtility is designed around premium convenience and prestige: cosmetics, visual upgrades, governance votes, global bank storage expansion, a small capped XP boost around 5%, and market fee reductions for active traders and crafters.\n\nMKG does not provide direct combat power. It should reward skill, control, competition, and long-term commitment without turning Makgura into pay-to-win.",
+          "author": "Makgura Team",
+          "publishedAt": "2026-05-04",
+          "imageStyle": "radial-gradient(circle at 24% 30%, rgba(214,168,90,.56), transparent 22%), radial-gradient(circle at 76% 22%, rgba(184,50,42,.30), transparent 24%), radial-gradient(circle at 50% 78%, rgba(45,128,197,.24), transparent 26%), linear-gradient(135deg,#17130d,#34200e 48%,#070606)",
+          "imageUrl": ""
+        },
+        {
           "id": "makgura-war-economy",
           "status": "published",
           "featured": true,
