@@ -1,7 +1,8 @@
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import AuthModal from "./auth/AuthModal";
 import { useSharedAuth } from "./auth/sharedAuth";
+import { buyNftWithWallet, fetchNftCatalog } from "./nftCheckout";
 import { useSiteControl } from "./useSiteControl";
 
 const factionLogoPaths = {
@@ -78,15 +79,37 @@ const landPlotCards = [
 ];
 const nftStats = [["3", "Founder Capital City NFTs"], ["3", "Race Capitals"], ["3", "Land Plot Sizes"], ["600", "Land Plot NFTs Available"]];
 const founderCityDrops = [
-  { race: "Roman Empire", name: "Rome Founder Capital City NFT", symbol: "ROMA", price: "100 SOL", supply: "1 Founder Capital City NFT", plots: "300 home plots", small: "150 small", medium: "105 medium", large: "45 large", perk: "The biggest capital city ownership asset, tied to Rome's political center, capital governance identity, and the largest land market.", accent: "#B8322A", logo: factionLogoPaths.rome },
-  { race: "Egypt", name: "Egypt Founder Capital City NFT", symbol: "EGYPT", price: "50 SOL", supply: "1 Founder Capital City NFT", plots: "200 home plots", small: "100 small", medium: "70 medium", large: "30 large", perk: "The middle-size capital city ownership asset, tied to Egypt's trade identity, land value, housing market, and capital-city prestige.", accent: "#2D80C5", logo: factionLogoPaths.egypt },
-  { race: "Barbarian Horde", name: "Barbarian Founder Capital City NFT", symbol: "HORDE", price: "25 SOL", supply: "1 Founder Capital City NFT", plots: "100 home plots", small: "50 small", medium: "35 medium", large: "15 large", perk: "The smallest capital city ownership asset, tied to raiding prestige, warband identity, and a tighter land market.", accent: "#3F7D4E", logo: factionLogoPaths.barbarian },
+  { id: "makgura-founder-city-rome", city: "Rome", race: "Roman Empire", name: "Rome Founder Capital City NFT", symbol: "ROMA", price: "100 SOL", supply: "1 Founder Capital City NFT", supplyCount: 1, plots: "300 home plots", plotCounts: { Small: 150, Medium: 105, Large: 45 }, small: "150 small", medium: "105 medium", large: "45 large", perk: "The biggest capital city ownership asset, tied to Rome's political center, capital governance identity, and the largest land market.", accent: "#B8322A", logo: factionLogoPaths.rome },
+  { id: "makgura-founder-city-egypt", city: "Egypt", race: "Egypt", name: "Egypt Founder Capital City NFT", symbol: "EGYPT", price: "50 SOL", supply: "1 Founder Capital City NFT", supplyCount: 1, plots: "200 home plots", plotCounts: { Small: 100, Medium: 70, Large: 30 }, small: "100 small", medium: "70 medium", large: "30 large", perk: "The middle-size capital city ownership asset, tied to Egypt's trade identity, land value, housing market, and capital-city prestige.", accent: "#2D80C5", logo: factionLogoPaths.egypt },
+  { id: "makgura-founder-city-barbarian-capital", city: "Barbarian Capital", race: "Barbarian Horde", name: "Barbarian Founder Capital City NFT", symbol: "HORDE", price: "25 SOL", supply: "1 Founder Capital City NFT", supplyCount: 1, plots: "100 home plots", plotCounts: { Small: 50, Medium: 35, Large: 15 }, small: "50 small", medium: "35 medium", large: "15 large", perk: "The smallest capital city ownership asset, tied to raiding prestige, warband identity, and a tighter land market.", accent: "#3F7D4E", logo: factionLogoPaths.barbarian },
 ];
 const landPlotDrops = [
   { size: "Small", name: "Small Capital Home Plot NFT", price: "0.15 SOL", supply: "300 total: Rome 150, Egypt 100, Barbarians 50", perk: "Entry-level capital real estate for future player housing, personal identity, and city presence." },
   { size: "Medium", name: "Medium Capital Home Plot NFT", price: "0.5 SOL", supply: "210 total: Rome 105, Egypt 70, Barbarians 35", perk: "Expanded housing footprint with more room for upgrades, storage flavor, decorations, and stronger location value." },
   { size: "Large", name: "Large Capital Home Plot NFT", price: "1 SOL", supply: "90 total: Rome 45, Egypt 30, Barbarians 15", perk: "Scarce high-value capital property for serious players, guild-adjacent housing, and high-value city placement." },
 ];
+const plotSizes = ["Small", "Medium", "Large"];
+const plotPrices = { Small: "0.15 SOL", Medium: "0.5 SOL", Large: "1 SOL" };
+const plotPerks = {
+  Small: "Entry-level capital real estate for a future player-built home, personal identity, and city presence.",
+  Medium: "Expanded capital housing land with more room for upgrades, storage flavor, decorations, and location value.",
+  Large: "Scarce high-value capital property for serious players, prestige housing, and prime city placement.",
+};
+const marketPlotDrops = founderCityDrops.flatMap((capital) => plotSizes.map((size) => ({
+  id: `makgura-land-${capital.city.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${size.toLowerCase()}`,
+  city: capital.city,
+  race: capital.race,
+  size,
+  name: `${capital.city} ${size} Land Plot NFT`,
+  symbol: size[0],
+  price: plotPrices[size],
+  supplyCount: capital.plotCounts[size],
+  supply: `${capital.plotCounts[size]} ${capital.city} ${size} Land Plot NFTs`,
+  category: `${size} Capital Land Plot NFT`,
+  accent: capital.accent,
+  logo: capital.logo,
+  perk: `${plotPerks[size]} Located in ${capital.city}, with fixed supply for this capital.`,
+})));
 const nftHowItWorks = [
   "Founder Capital City NFTs are one-of-one assets for Rome, Egypt, and the Barbarian Horde.",
   "Rome is the biggest capital: 100 SOL founder city NFT and 300 home plot NFTs.",
@@ -165,7 +188,7 @@ const roadmap = [
 ];
 
 function HeaderCommandButton({ children, primary = false, onClick }) { return <button onClick={onClick} className={`button-shine header-command ${primary ? "primary" : ""}`}><span className="button-sweep" /><span className="button-content">{children}</span></button>; }
-function ShieldButton({ children, light = false, onClick }) { return <button onClick={onClick} className={`button-shine shield-button ${light ? "light" : ""}`}><span className="button-sweep" /><span className="button-content">{children}</span></button>; }
+function ShieldButton({ children, light = false, onClick, disabled = false }) { return <button onClick={onClick} disabled={disabled} className={`button-shine shield-button ${light ? "light" : ""}`}><span className="button-sweep" /><span className="button-content">{children}</span></button>; }
 function StatusPill({ children }) { return <span className="status-pill">{children}</span>; }
 function FeaturePill({ children }) { return <div className="feature-pill"><span>✦</span><span>{children}</span></div>; }
 function SectionHeading({ eyebrow, title, text }) { return <div className="section-heading"><div className="eyebrow">{eyebrow}</div><h2>{title}</h2><div className="heading-line" />{text && <p>{text}</p>}</div>; }
@@ -310,7 +333,22 @@ function NftSaleHud() {
   );
 }
 
-function FounderCityCard({ drop, onAuthOpen }) {
+function MarketplaceButtons({ drop, onBuy, purchase, marketplaceReady }) {
+  const soldOut = (drop.remaining ?? drop.supplyCount) <= 0;
+  const disabled = !marketplaceReady || purchase?.busy || soldOut;
+  return (
+    <>
+      <div className="button-row">
+        <ShieldButton light disabled={disabled} onClick={() => onBuy?.(drop, "phantom")}>{purchase?.busy ? "Processing..." : soldOut ? "Sold Out" : "Buy With Phantom"}</ShieldButton>
+        <ShieldButton disabled={disabled} onClick={() => onBuy?.(drop, "solflare")}>Buy With Solflare</ShieldButton>
+      </div>
+      {!marketplaceReady && <p className="purchase-message">Solana checkout is being configured. Inventory display is live.</p>}
+      {purchase?.message && <p className="purchase-message">{purchase.message}</p>}
+    </>
+  );
+}
+
+function FounderCityCard({ drop, onBuy, purchase, marketplaceReady = false }) {
   return (
     <article className="nft-drop-card founder" style={{ "--nft-accent": drop.accent }}>
       <div className="nft-drop-art">
@@ -321,25 +359,25 @@ function FounderCityCard({ drop, onAuthOpen }) {
         <div className="nft-drop-title"><div><h3>{drop.name}</h3><small>{drop.supply}</small></div><b>{drop.price}</b></div>
         <p>{drop.perk}</p>
         <div className="plot-breakdown"><span>{drop.plots}</span><span>{drop.small}</span><span>{drop.medium}</span><span>{drop.large}</span></div>
-        <div className="tag-list"><span>Founder City</span><span>1 of 1</span><span>No Combat Power</span></div>
-        <div className="button-row"><ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton><ShieldButton onClick={onAuthOpen}>Register Interest</ShieldButton></div>
+        <div className="tag-list"><span>Founder City</span><span>{drop.remaining ?? drop.supplyCount} Remaining</span><span>No Combat Power</span></div>
+        <MarketplaceButtons drop={drop} onBuy={onBuy} purchase={purchase} marketplaceReady={marketplaceReady} />
       </div>
     </article>
   );
 }
 
-function LandPlotCard({ plot, onAuthOpen }) {
+function LandPlotCard({ plot, onBuy, purchase, marketplaceReady = false }) {
   return (
-    <article className="nft-drop-card plot">
+    <article className="nft-drop-card plot" style={{ "--nft-accent": plot.accent }}>
       <div className="nft-drop-art plot-art">
-        <span>{plot.size} Plot</span>
+        <span>{plot.city}</span>
         <div className="plot-symbol">{plot.size.slice(0, 1)}</div>
       </div>
       <div className="nft-drop-body">
         <div className="nft-drop-title"><div><h3>{plot.name}</h3><small>{plot.supply}</small></div><b>{plot.price}</b></div>
         <p>{plot.perk}</p>
-        <p><b>Pricing:</b> Small 0.15 SOL, medium 0.5 SOL, large 1 SOL.</p>
-        <div className="button-row"><ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton><ShieldButton onClick={onAuthOpen}>Plot Details</ShieldButton></div>
+        <div className="tag-list"><span>{plot.race}</span><span>{plot.size} Plot</span><span>{plot.remaining ?? plot.supplyCount} Remaining</span></div>
+        <MarketplaceButtons drop={plot} onBuy={onBuy} purchase={purchase} marketplaceReady={marketplaceReady} />
       </div>
     </article>
   );
@@ -361,7 +399,12 @@ function MkgTokenSection({ onAuthOpen }) {
   return <section id="token" className="section"><div className="container"><SectionHeading eyebrow="MAKGURA COIN / MKG" title="Seed round: $0.05 per MKG. Public sale: $0.10 per MKG." text="MKG mirrors the UJU coin structure for the Majori ecosystem: 8,000,000 max supply, 10% public seed round, 15% public sale, long-term player rewards, and premium utility that does not sell combat power." /><div className="mkg-token-grid"><div className="mkg-token-panel"><div className="mkg-token-head"><div><p className="eyebrow">Token Overview</p><h2>MKG Coin</h2><p>MKG holders can vote on Makgura direction, access cosmetics, receive in-game utility like bank storage expansion, XP quality-of-life boosts, lower market fees, and are planned to receive a share of future NFT revenue subject to final legal structure.</p></div><div className="mkg-mark">MKG</div></div><div className="mkg-token-stats">{mkgDetails.map((item) => <TokenStat key={item.label} value={item.value} label={item.label} caption={item.caption} />)}</div><MkgDistributionBars /></div><MkgSeedCheckout onAuthOpen={onAuthOpen} /></div></div></section>;
 }
 
-function NftSalesPage({ onBack, onAuthOpen }) {
+function NftSalesPage({ onBack, onAuthenticated }) {
+  const [cityFilter, setCityFilter] = useState("All");
+  const [sizeFilter, setSizeFilter] = useState("All");
+  const [catalogState, setCatalogState] = useState({ loading: true, error: "", settings: null, items: [] });
+  const [purchaseState, setPurchaseState] = useState({});
+
   React.useEffect(() => {
     document.title = "Makgura NFTs | Founder Cities and Land Plots";
     let descriptionTag = document.querySelector('meta[name="description"]');
@@ -373,6 +416,49 @@ function NftSalesPage({ onBack, onAuthOpen }) {
     descriptionTag.setAttribute("content", "Makgura NFTs include 3 Founder Capital City NFTs and 600 capital-city home plot NFTs with published SOL pricing by race and plot size.");
   }, []);
 
+  React.useEffect(() => {
+    let mounted = true;
+    fetchNftCatalog()
+      .then((catalog) => {
+        if (!mounted) return;
+        setCatalogState({ loading: false, error: "", settings: catalog.settings, items: catalog.items || [] });
+      })
+      .catch((error) => {
+        if (!mounted) return;
+        setCatalogState({ loading: false, error: error.message, settings: null, items: [] });
+      });
+    return () => { mounted = false; };
+  }, []);
+
+  const catalogById = useMemo(() => new Map((catalogState.items || []).filter((item) => item.project === "makgura").map((item) => [item.id, item])), [catalogState.items]);
+  const marketplaceReady = Boolean(catalogState.settings?.saleConfigured);
+  const liveFounderDrops = founderCityDrops.map((drop) => ({ ...drop, ...(catalogById.get(drop.id) || {}), logo: drop.logo, accent: drop.accent, plots: drop.plots, small: drop.small, medium: drop.medium, large: drop.large }));
+  const livePlotDrops = marketPlotDrops.map((drop) => ({ ...drop, ...(catalogById.get(drop.id) || {}), logo: drop.logo, accent: drop.accent }));
+  const filteredPlotDrops = livePlotDrops.filter((drop) => (cityFilter === "All" || drop.city === cityFilter) && (sizeFilter === "All" || drop.size === sizeFilter));
+  const visiblePlotTotal = filteredPlotDrops.reduce((total, drop) => total + Number(drop.remaining ?? drop.supplyCount ?? 0), 0);
+
+  async function handleBuy(drop, providerName) {
+    setPurchaseState((current) => ({ ...current, [drop.id]: { busy: true, message: `Opening ${providerName === "solflare" ? "Solflare" : "Phantom"}...` } }));
+    try {
+      const result = await buyNftWithWallet({
+        itemId: drop.id,
+        providerName,
+        onAuthenticated,
+      });
+      setPurchaseState((current) => ({
+        ...current,
+        [drop.id]: {
+          busy: false,
+          message: `Payment confirmed. Order ${result.order.id} now holds your Makgura NFT entitlement.`,
+        },
+      }));
+      const catalog = await fetchNftCatalog();
+      setCatalogState({ loading: false, error: "", settings: catalog.settings, items: catalog.items || [] });
+    } catch (error) {
+      setPurchaseState((current) => ({ ...current, [drop.id]: { busy: false, message: error.message } }));
+    }
+  }
+
   return (
     <>
       <section className="hero nft-page-hero">
@@ -382,8 +468,8 @@ function NftSalesPage({ onBack, onAuthOpen }) {
             <div className="hero-pills"><StatusPill>Founder NFT Sale</StatusPill><StatusPill>Cities. Land. Housing.</StatusPill></div>
             <h1 className="makgura-logo">Makgura NFTs</h1>
             <div className="makgura-subtitle">Founder cities and capital land plots.</div>
-            <p className="hero-text">Makgura's NFT page is built like Ujura's dedicated ownership page, but the assets are different: 3 Founder Capital City NFTs plus 600 capital-city home plot NFTs. Rome is the largest at 100 SOL with 300 plots, Egypt is 50 SOL with 200 plots, and Barbarians are 25 SOL with 100 plots.</p>
-            <div className="hero-ctas"><ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton><ShieldButton onClick={onBack}>Back to Site</ShieldButton></div>
+            <p className="hero-text">A clean Makgura marketplace for one-of-one Founder Capital City NFTs and capital land plots for player-built houses. Filter by Rome, Egypt, or the Barbarian capital, then pick small, medium, or large real estate.</p>
+            <div className="hero-ctas"><ShieldButton light onClick={() => setCityFilter("Rome")}>Browse Rome</ShieldButton><ShieldButton onClick={onBack}>Back to Site</ShieldButton></div>
           </div>
           <NftSaleHud />
         </div>
@@ -392,13 +478,24 @@ function NftSalesPage({ onBack, onAuthOpen }) {
       <section className="section">
         <div className="container">
           <SectionHeading eyebrow="Founder Capital Cities" title="Three one-of-one capital city NFTs." text="Each race has one capital city ownership asset with fixed founder pricing and fixed home plot supply. These are not instant power items: value comes from city identity, faction control, player activity, and the future capital real-estate economy." />
-          <div className="three-grid">{founderCityDrops.map((drop) => <FounderCityCard key={drop.name} drop={drop} onAuthOpen={onAuthOpen} />)}</div>
+          {catalogState.error && <div className="market-notice">{catalogState.error}</div>}
+          {catalogState.loading && <div className="market-notice">Loading live Makgura inventory...</div>}
+          <div className="three-grid">{liveFounderDrops.map((drop) => <FounderCityCard key={drop.name} drop={drop} onBuy={handleBuy} purchase={purchaseState[drop.id]} marketplaceReady={marketplaceReady} />)}</div>
         </div>
       </section>
       <section className="section">
         <div className="container">
-          <SectionHeading eyebrow="Capital Land Plots" title="Real estate for player-built houses." text="Land plots are sold inside each capital city as small, medium, and large home plot NFTs. Small plots cost 0.15 SOL, medium plots cost 0.5 SOL, and large plots cost 1 SOL." />
-          <div className="four-grid">{landPlotDrops.map((plot) => <LandPlotCard key={plot.size} plot={plot} onAuthOpen={onAuthOpen} />)}</div>
+          <div className="market-section-head">
+            <SectionHeading eyebrow="Capital Land Plot Marketplace" title="Pick a city, then choose the plot size." text="Each capital has its own real-estate supply. Rome has 300 total plots, Egypt has 200, and the Barbarian capital has 100. Small plots cost 0.15 SOL, medium plots cost 0.5 SOL, and large plots cost 1 SOL." />
+            <div className="market-live-counter"><strong>{visiblePlotTotal}</strong><span>Matching Plots Available</span></div>
+          </div>
+          <div className="market-filters">
+            {["All", ...founderCityDrops.map((drop) => drop.city)].map((city) => <button key={city} className={cityFilter === city ? "active" : ""} onClick={() => setCityFilter(city)}>{city === "Barbarian Capital" ? "Barbarians" : city}</button>)}
+          </div>
+          <div className="market-filters plot-size-filters">
+            {["All", ...plotSizes].map((size) => <button key={size} className={sizeFilter === size ? "active" : ""} onClick={() => setSizeFilter(size)}>{size}</button>)}
+          </div>
+          <div className="three-grid marketplace-grid">{filteredPlotDrops.map((plot) => <LandPlotCard key={plot.id} plot={plot} onBuy={handleBuy} purchase={purchaseState[plot.id]} marketplaceReady={marketplaceReady} />)}</div>
         </div>
       </section>
       <section className="section">
@@ -469,7 +566,7 @@ export default function App() {
   return <div className="site-shell"><PremiumEffects /><div className="site-bg" /><div className="site-grid" />
     <header className="site-header"><div className="header-inner"><a className="brand" href="#top" aria-label="Makgura home" onClick={(event)=>{event.preventDefault();goHome();}}><div className="brand-mark brand-mark-logo"><img src="/makgura-logo-transparent.png" alt="" aria-hidden="true" /></div><div><div className="brand-name">MAKGURA</div><div className="brand-subtitle">Ancient War MMO</div></div></a><nav className="desktop-nav" aria-label="Primary navigation">{visibleNavItems.map((item,index)=><React.Fragment key={item.label}>{index!==0&&<span>•</span>}<button className="nav-link-button" onClick={() => handleNav(item)}>{item.label}</button></React.Fragment>)}</nav><div className="header-actions">{control.toggles?.alphaAccessEnabled && <HeaderCommandButton primary onClick={() => setAuthOpen(true)}>{control.navigation?.playAlphaLabel || "Play Alpha"}</HeaderCommandButton>}{control.toggles?.walletButtonsEnabled && <HeaderCommandButton onClick={() => setAuthOpen(true)}>{accountLabel}</HeaderCommandButton>}</div><div className="mobile-action"><HeaderCommandButton primary onClick={() => setAuthOpen(true)}>{accountLabel}</HeaderCommandButton></div></div><div className="header-line" /></header>
     {control.statusBanner?.enabled && control.statusBanner?.text && <div className="control-banner">{control.statusBanner.text}</div>}
-    <main id="top">{activePage === "nfts" ? <NftSalesPage onBack={goHome} onAuthOpen={() => setAuthOpen(true)} /> : <><section className="hero"><div className="container hero-inner"><div className="hero-copy home-hero-copy"><img className="home-sword-splatter" src="/makgura-sword-blood-splatter-core.png" alt="" aria-hidden="true" /><div className="hero-pills"><StatusPill>{control.hero?.badge || "Grounded Ancient War MMO"}</StatusPill><StatusPill>{control.hero?.factionBadge || "Rome. Barbarians. Egypt."}</StatusPill></div><h1 className="makgura-logo">{control.hero?.title || "Makgura"}</h1><div className="makgura-subtitle">{control.hero?.subtitle || "Level. Fight. Conquer."}</div><p className="hero-text">{control.hero?.body || "A persistent, player-driven war MMO where players level from 1-60, fight for Rome, the Barbarian Horde, or Egypt, become a Gladiator in Colosseum PvP, capture cities, control territory, and compete over dynamic world resources."}</p><div className="feature-grid">{heroFeatures.map((item)=><FeaturePill key={item}>{item}</FeaturePill>)}</div><div className="hero-ctas"><ShieldButton light onClick={() => handleCta(control.hero?.primaryCta)}>{control.hero?.primaryCta?.label || "Explore Makgura"}</ShieldButton><ShieldButton onClick={() => handleCta(control.hero?.secondaryCta)}>{control.hero?.secondaryCta?.label || "Read Whitepaper"}</ShieldButton></div></div><WarMapPanel /></div><div className="container stats-grid">{heroStats.map(([value,label])=><MetricCard key={label} value={value} label={label}/>)}</div></section>
+    <main id="top">{activePage === "nfts" ? <NftSalesPage onBack={goHome} onAuthenticated={auth.refresh} /> : <><section className="hero"><div className="container hero-inner"><div className="hero-copy home-hero-copy"><img className="home-sword-splatter" src="/makgura-sword-blood-splatter-core.png" alt="" aria-hidden="true" /><div className="hero-pills"><StatusPill>{control.hero?.badge || "Grounded Ancient War MMO"}</StatusPill><StatusPill>{control.hero?.factionBadge || "Rome. Barbarians. Egypt."}</StatusPill></div><h1 className="makgura-logo">{control.hero?.title || "Makgura"}</h1><div className="makgura-subtitle">{control.hero?.subtitle || "Level. Fight. Conquer."}</div><p className="hero-text">{control.hero?.body || "A persistent, player-driven war MMO where players level from 1-60, fight for Rome, the Barbarian Horde, or Egypt, become a Gladiator in Colosseum PvP, capture cities, control territory, and compete over dynamic world resources."}</p><div className="feature-grid">{heroFeatures.map((item)=><FeaturePill key={item}>{item}</FeaturePill>)}</div><div className="hero-ctas"><ShieldButton light onClick={() => handleCta(control.hero?.primaryCta)}>{control.hero?.primaryCta?.label || "Explore Makgura"}</ShieldButton><ShieldButton onClick={() => handleCta(control.hero?.secondaryCta)}>{control.hero?.secondaryCta?.label || "Read Whitepaper"}</ShieldButton></div></div><WarMapPanel /></div><div className="container stats-grid">{heroStats.map(([value,label])=><MetricCard key={label} value={value} label={label}/>)}</div></section>
     <section id="vision" className="section"><div className="container two-col"><div><SectionHeading eyebrow="CORE VISION" title="WoW Classic Progression. DayZ Risk. EVE-Style Control." text="Makgura combines long-form leveling, meaningful death, player-driven economy, shifting territory, capital city governance, sieges, world events, and constant faction conflict into one ancient war MMO."/><div className="vision-stack">{visionCards.map((card)=><Card key={card.title} {...card}/>)}</div></div><LoopPanel /></div></section>
     <section id="factions" className="section factions-section"><div className="container"><SectionHeading eyebrow="PLAYABLE FACTIONS" title="Rome. Barbarians. Egypt." text="The game is primarily centered around Rome, but its world war is shaped by three playable powers with different identities, strengths, economies, and battlefield styles."/><div className="faction-grid">{factions.map((faction)=><FactionCard key={faction.title} faction={faction}/>)}</div></div></section>
     <section id="world" className="section"><div className="container two-col world-grid"><SectionHeading eyebrow="WORLD & GOVERNANCE" title="Cities can be attacked, captured, and governed." text="Major cities are economic and social hubs. Attackers breach gates, capture districts, and flip city control. Capital City NFTs act as permanent tradable deeds, but income and policy control only activate when the owner’s faction controls the city."/><div className="stack">{worldSystems.map((system)=><Card key={system.title} eyebrow={system.eyebrow} title={system.title} text={system.text}><TagList tags={system.tags}/></Card>)}</div></div></section>
