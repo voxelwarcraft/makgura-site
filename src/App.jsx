@@ -377,7 +377,8 @@ function NftSalesPage({ onBack, onAuthOpen }) {
     <>
       <section className="hero nft-page-hero">
         <div className="container hero-inner">
-          <div className="hero-copy">
+          <div className="hero-copy nft-hero-copy">
+            <img className="sword-splatter" src="/makgura-sword-blood-splatter.png" alt="" aria-hidden="true" />
             <div className="hero-pills"><StatusPill>Founder NFT Sale</StatusPill><StatusPill>Cities. Land. Housing.</StatusPill></div>
             <h1 className="makgura-logo">Makgura NFTs</h1>
             <div className="makgura-subtitle">Founder cities and capital land plots.</div>
