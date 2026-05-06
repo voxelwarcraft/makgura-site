@@ -615,7 +615,7 @@ function AccountPage({ auth, onBack, onAuthOpen }) {
       setLoading(true);
       setError("");
       try {
-        const summary = await authFetch("/api/account/summary", { method: "GET" });
+        const summary = await authFetch("/api/auth/session?include=account", { method: "GET" });
         if (alive) setAccount(summary);
       } catch (summaryError) {
         if (alive) setError(summaryError.message);
