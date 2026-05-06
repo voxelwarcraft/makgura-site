@@ -196,6 +196,93 @@ function Card({ eyebrow, title, text, children, compact = false }) { return <div
 function MetricCard({ value, label }) { return <div className="metric-card hover-card"><div className="metric-topline" /><div className="metric-value">{value}</div><div className="metric-label">{label}</div></div>; }
 function TagList({ tags }) { return <div className="tag-list">{tags.map((tag) => <span key={tag}>{tag}</span>)}</div>; }
 
+function NftOwnershipShowcase({ onOpenSale }) {
+  const [activeCityId, setActiveCityId] = useState(founderCityDrops[0].id);
+  const activeCity = founderCityDrops.find((city) => city.id === activeCityId) || founderCityDrops[0];
+  const plotCards = plotSizes.map((size) => ({
+    size,
+    count: activeCity.plotCounts[size],
+    price: plotPrices[size],
+    text: plotPerks[size],
+  }));
+
+  return (
+    <section id="nfts" className="section nft-showcase-section">
+      <div className="container">
+        <div className="nft-showcase-shell" style={{ "--active-city": activeCity.accent }}>
+          <div className="nft-showcase-bg" />
+          <div className="nft-showcase-head">
+            <SectionHeading
+              eyebrow="NFT Ownership"
+              title="Founder cities and capital land plots."
+              text="Own founder city rights or buy capital land plots for player-built housing across Rome, Egypt, and the Barbarian Capital."
+            />
+            <div className="nft-trust-badge">
+              <span>No Pay-To-Win</span>
+              <strong>Housing, prestige, and ownership only.</strong>
+              <small>No weapons. No stats. No combat power.</small>
+            </div>
+          </div>
+
+          <div className="nft-showcase-stats" aria-label="Makgura NFT sale summary">
+            <div><strong>3</strong><span>Founder Cities</span></div>
+            <div><strong>600</strong><span>Land Plot NFTs</span></div>
+            <div><strong>3</strong><span>Plot Sizes</span></div>
+          </div>
+
+          <div className="city-selector" role="tablist" aria-label="Capital city selector">
+            {founderCityDrops.map((city) => (
+              <button
+                key={city.id}
+                type="button"
+                role="tab"
+                aria-selected={activeCity.id === city.id}
+                className={activeCity.id === city.id ? "active" : ""}
+                style={{ "--city-accent": city.accent }}
+                onClick={() => setActiveCityId(city.id)}
+              >
+                <img src={city.logo} alt="" aria-hidden="true" />
+                <span>{city.city === "Barbarian Capital" ? "Barbarians" : city.city}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="city-dossier" key={activeCity.id}>
+            <div className="city-dossier-main">
+              <div className="city-emblem"><img src={activeCity.logo} alt={`${activeCity.race} logo`} /></div>
+              <div>
+                <div className="eyebrow">Founder Capital City NFT</div>
+                <h3>{activeCity.city}</h3>
+                <p>{activeCity.perk}</p>
+                <div className="city-dossier-facts">
+                  <span><b>{activeCity.price}</b> Founder City NFT</span>
+                  <span><b>{activeCity.plots}</b> Total Capital Plots</span>
+                  <span><b>{activeCity.supplyCount}</b> One-of-One City Deed</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="plot-price-grid">
+              {plotCards.map((plot) => (
+                <article className="plot-price-card" key={plot.size}>
+                  <span>{plot.size}</span>
+                  <strong>{plot.price}</strong>
+                  <p>{plot.count} available in {activeCity.city}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="nft-showcase-actions">
+            <ShieldButton light onClick={onOpenSale}>View NFT Sale</ShieldButton>
+            <div className="nft-showcase-note">Choose a capital, compare plot supply, then open the full marketplace page when ready.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FactionCard({ faction }) {
   return <div className="faction-card" style={{ "--faction": faction.accent, "--faction-glow": faction.glow }}><div className="faction-topline" /><div className="faction-glow one" /><div className="faction-glow two" /><div className="card-pattern" /><div className="faction-content"><div className="faction-logo-wrap"><img src={faction.logo} alt={`${faction.title} logo`} /></div><div className="faction-copy"><div className="faction-eyebrow">{faction.eyebrow}</div><h3>{faction.title}</h3><p>{faction.text}</p><div className="faction-tags">{faction.tags.map((tag) => <span key={tag}>{tag}</span>)}</div></div></div></div>;
 }
@@ -577,7 +664,7 @@ export default function App() {
     <section className="section"><div className="container"><SectionHeading eyebrow="DEATH & LAW" title="Inventory is at risk. Storage is safe. Crime has consequences." text="Makgura is built around risk versus recovery. Death matters, but players can rebuild through banks, housing, guild storage, crafting, trade, and smart preparation."/><div className="four-grid">{deathCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div></div></section>
     <section id="economy" className="section"><div className="container two-col"><div><SectionHeading eyebrow="ECONOMY" title="Cities, taxes, banks, housing, and trade." text="The economy is driven by marketplace trades, crafting fees, repairs, property taxes, storage, guild logistics, player housing, and faction control over valuable cities."/><div className="governor-card"><div className="eyebrow">Governor System</div><div className="heading-line"/><p>Governors earn a small percentage of city economic activity, such as 1–2%, while tax limits stay controlled around 2%–8%. High taxes reduce player activity, and cooldowns prevent constant abuse.</p></div></div><div className="two-card-grid">{economyCards.map((card)=><Card key={card.title} title={card.title} text={card.text}/>)}</div></div></section>
     <section id="professions" className="section"><div className="container"><SectionHeading eyebrow="PROFESSIONS & CRAFTING" title="A war economy needs workers, builders, and master crafters." text="Makgura professions let players build value outside pure combat. Gatherers, refiners, crafters, builders, traders, and guild suppliers all feed the same economy of gear loss, city markets, housing, sieges, and territory war."/><div className="four-grid">{professionCards.map((card)=><Card key={card.title} eyebrow={card.eyebrow} title={card.title} text={card.text}><TagList tags={card.tags}/></Card>)}</div><div className="four-grid after-banner">{craftingPillars.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div></div></section>
-    <section id="nfts" className="section"><div className="container"><SectionHeading eyebrow="NFT OWNERSHIP" title="Founder cities and capital land plots." text="Makgura NFTs are similar to Ujura's ownership layer, but built for ancient-world real estate. The core structure is 3 Founder Capital City NFTs plus 600 home plot NFTs: Rome has 300 plots and a 100 SOL founder city NFT, Egypt has 200 plots and a 50 SOL founder city NFT, and Barbarians have 100 plots and a 25 SOL founder city NFT."/><div className="four-grid">{nftCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="three-grid after-banner">{nftCapitalCards.map((card)=><Card key={card.title} eyebrow={card.eyebrow} title={card.title} text={card.text}><TagList tags={card.tags}/></Card>)}</div><div className="four-grid after-banner">{landPlotCards.map((card)=><Card key={card.title} title={card.title} text={card.text} compact/>)}</div><div className="hero-ctas after-banner"><ShieldButton light onClick={goNfts}>Open NFT Page</ShieldButton></div></div></section>
+    <NftOwnershipShowcase onOpenSale={goNfts} />
     <section className="section"><div className="container"><SectionHeading eyebrow="DYNAMIC WORLD EVENTS" title="Gold veins create wars that move around the map." text="A high-value gold vein spawns in a dangerous contested region, gets announced, attracts players, triggers outpost building, creates extraction fights, then depletes and respawns elsewhere."/><div className="three-grid">{eventCards.map((card)=><Card key={card.title} {...card}/>)}</div></div></section>
     <section className="section"><div className="container"><DecreeBanner eyebrow="COLOSSEUM & MERCENARIES" title="Become a Gladiator in the Colosseum." text="Solo players can become Gladiators in ranked Colosseum PvP, fully level, craft, trade, bounty hunt, and temporarily join larger wars as mercenaries without needing to be permanently locked into a guild." cta={<ShieldButton light>Enter Colosseum</ShieldButton>}/><div className="two-card-grid after-banner">{soloGroupCards.map((card)=><Card key={card.title} title={card.title} text={card.text}/>)}</div></div></section>
     <MkgTokenSection onAuthOpen={() => setAuthOpen(true)} />
