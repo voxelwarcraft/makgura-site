@@ -1,7 +1,7 @@
 
 import React, { useMemo, useState } from "react";
 import AuthModal from "./auth/AuthModal";
-import { useSharedAuth } from "./auth/sharedAuth";
+import { authFetch, useSharedAuth } from "./auth/sharedAuth";
 import { buyNftWithWallet, fetchNftCatalog } from "./nftCheckout";
 import { useSiteControl } from "./useSiteControl";
 
@@ -599,13 +599,166 @@ function NftSalesPage({ onAuthenticated, onAuthOpen }) {
   );
 }
 
+function AccountPage({ auth, onBack, onAuthOpen }) {
+  const [account, setAccount] = useState(null);
+  const [loading, setLoading] = useState(Boolean(auth.user));
+  const [error, setError] = useState("");
+  const [launchingAlpha, setLaunchingAlpha] = useState(false);
+
+  React.useEffect(() => {
+    let alive = true;
+    async function loadAccount() {
+      if (!auth.user) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      setError("");
+      try {
+        const summary = await authFetch("/api/account/summary", { method: "GET" });
+        if (alive) setAccount(summary);
+      } catch (summaryError) {
+        if (alive) setError(summaryError.message);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    }
+    loadAccount();
+    return () => { alive = false; };
+  }, [auth.user]);
+
+  async function launchUjuraAlpha() {
+    if (!auth.user || launchingAlpha) {
+      onAuthOpen();
+      return;
+    }
+    setLaunchingAlpha(true);
+    try {
+      const launch = await authFetch("/api/auth/session", {
+        method: "POST",
+        body: JSON.stringify({ game: "ujura-alpha" }),
+      });
+      window.location.href = launch.launchUrl || "https://play.ujura.com";
+    } catch (launchError) {
+      setError(launchError.message);
+      onAuthOpen();
+    } finally {
+      setLaunchingAlpha(false);
+    }
+  }
+
+  const wallets = account?.wallets || auth.user?.wallets || [];
+  const holdings = account?.holdings || [];
+  const recentOrders = account?.recentOrders || [];
+
+  return (
+    <section className="section account-page">
+      <div className="container">
+        <div className="account-hero-card">
+          <div>
+            <div className="eyebrow">Shared Majori Account</div>
+            <h1>My Account</h1>
+            <p>One account connects Majori Games, Ujura, Makgura, and the Ujura Alpha game. Manage sign-in, linked wallets, tracked NFT entitlements, and basic access from one place.</p>
+          </div>
+          <div className="account-hero-actions">
+            <ShieldButton onClick={onBack}>Back to Site</ShieldButton>
+            {auth.user ? <ShieldButton onClick={() => { auth.signOut(); onBack(); }}>Sign Out</ShieldButton> : <ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton>}
+            {auth.user && <ShieldButton light onClick={launchUjuraAlpha}>{launchingAlpha ? "Launching..." : "Launch Ujura Alpha"}</ShieldButton>}
+          </div>
+        </div>
+
+        {!auth.user ? (
+          <div className="account-panel">
+            <div className="eyebrow">Sign In Required</div>
+            <h2>Connect a wallet or use email and password.</h2>
+            <p>Your account follows you across all Majori ecosystem sites.</p>
+            <ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton>
+          </div>
+        ) : (
+          <>
+            <div className="account-metrics">
+              <MetricCard value={String(account?.summary?.total || 0)} label="Tracked NFTs" />
+              <MetricCard value={String(account?.summary?.byProject?.ujura || 0)} label="Ujura NFTs" />
+              <MetricCard value={String(account?.summary?.byProject?.makgura || 0)} label="Makgura NFTs" />
+              <MetricCard value={String(wallets.length)} label="Linked Wallets" />
+            </div>
+
+            <div className="account-layout">
+              <div className="account-panel">
+                <div className="eyebrow">Identity</div>
+                <h2>{auth.user.email || "Wallet Account"}</h2>
+                <p>Account ID: <code>{auth.user.id}</code></p>
+                <ShieldButton light onClick={onAuthOpen}>Link Another Wallet</ShieldButton>
+              </div>
+              <div className="account-panel">
+                <div className="eyebrow">Linked Wallets</div>
+                <div className="account-wallet-list">
+                  {wallets.length ? wallets.map((wallet) => <code key={wallet}>{wallet}</code>) : <p>No wallet linked yet.</p>}
+                </div>
+              </div>
+            </div>
+
+            <div className="account-panel">
+              <div className="account-section-head">
+                <div>
+                  <div className="eyebrow">Wallet NFT View</div>
+                  <h2>Your Majori NFTs</h2>
+                </div>
+                <p>{loading ? "Loading account NFTs..." : "Tracked NFT purchases and entitlements across Ujura, Makgura, and future Majori drops."}</p>
+              </div>
+              {error && <div className="market-notice">{error}</div>}
+              {!loading && holdings.length === 0 ? (
+                <p className="account-empty">No tracked NFT entitlements yet. Confirmed purchases made through Ujura or Makgura will appear here.</p>
+              ) : (
+                <div className="three-grid account-nft-grid">
+                  {holdings.map((holding) => <AccountNftCard key={holding.id} holding={holding} />)}
+                </div>
+              )}
+            </div>
+
+            <div className="account-panel">
+              <div className="eyebrow">Recent Activity</div>
+              <h2>Order History</h2>
+              <div className="account-activity-list">
+                {recentOrders.length ? recentOrders.slice(0, 6).map((order) => (
+                  <div key={order.id} className="account-activity-row">
+                    <span><strong>{order.itemName}</strong><small>{order.project} · {order.status}</small></span>
+                    <b>{order.priceSol} SOL</b>
+                  </div>
+                )) : <p>No recent NFT activity yet.</p>}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function AccountNftCard({ holding }) {
+  return (
+    <article className="account-nft-card">
+      <div className="card-topline" />
+      <div className="card-pattern" />
+      <div className="eyebrow">{holding.project} · {holding.category}</div>
+      <h3>{holding.itemName}</h3>
+      <p>{holding.perk || "Tracked Majori ecosystem NFT entitlement."}</p>
+      <div className="tag-list">
+        <span>{holding.status}</span>
+        <span>{holding.priceSol} SOL</span>
+        <span>{holding.entitlementSource === "backend_tracked_entitlement" ? "Tracked" : "On-chain ready"}</span>
+      </div>
+    </article>
+  );
+}
+
 export default function App() {
   const control = useSiteControl("makgura");
   const auth = useSharedAuth();
   const [authOpen, setAuthOpen] = useState(false);
   const [activePost, setActivePost] = useState(null);
   const [activePage, setActivePage] = useState("home");
-  const accountLabel = auth.user ? auth.user.email || "Account" : control.navigation?.walletLabel || "Connect Wallet";
+  const accountLabel = auth.user ? "My Account" : control.navigation?.walletLabel || "Connect Wallet";
   const visibleNavItems = control.blog?.enabled ? [...navItems, { label: "Blog", href: "#blog" }] : navItems;
   usePostSeo(
     activePost,
@@ -633,6 +786,11 @@ export default function App() {
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
   }
 
+  function goAccount() {
+    setActivePage("account");
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+  }
+
   function handleNav(item) {
     if (item.label === "NFTs") {
       goNfts();
@@ -655,9 +813,9 @@ export default function App() {
   }
 
   return <div className="site-shell"><PremiumEffects /><div className="site-bg" /><div className="site-grid" />
-    <header className="site-header"><div className="header-inner"><a className="brand" href="#top" aria-label="Makgura home" onClick={(event)=>{event.preventDefault();goHome();}}><div className="brand-mark brand-mark-logo"><img src="/makgura-logo-transparent.png" alt="" aria-hidden="true" /></div><div><div className="brand-name">MAKGURA</div><div className="brand-subtitle">Ancient War MMO</div></div></a><nav className="desktop-nav" aria-label="Primary navigation">{visibleNavItems.map((item,index)=><React.Fragment key={item.label}>{index!==0&&<span>•</span>}<button className="nav-link-button" onClick={() => handleNav(item)}>{item.label}</button></React.Fragment>)}</nav><div className="header-actions">{control.toggles?.alphaAccessEnabled && <HeaderCommandButton primary onClick={() => setAuthOpen(true)}>{control.navigation?.playAlphaLabel || "Play Alpha"}</HeaderCommandButton>}{control.toggles?.walletButtonsEnabled && <HeaderCommandButton onClick={() => setAuthOpen(true)}>{accountLabel}</HeaderCommandButton>}</div><div className="mobile-action"><HeaderCommandButton primary onClick={() => setAuthOpen(true)}>{accountLabel}</HeaderCommandButton></div></div><div className="header-line" /></header>
+    <header className="site-header"><div className="header-inner"><a className="brand" href="#top" aria-label="Makgura home" onClick={(event)=>{event.preventDefault();goHome();}}><div className="brand-mark brand-mark-logo"><img src="/makgura-logo-transparent.png" alt="" aria-hidden="true" /></div><div><div className="brand-name">MAKGURA</div><div className="brand-subtitle">Ancient War MMO</div></div></a><nav className="desktop-nav" aria-label="Primary navigation">{visibleNavItems.map((item,index)=><React.Fragment key={item.label}>{index!==0&&<span>•</span>}<button className="nav-link-button" onClick={() => handleNav(item)}>{item.label}</button></React.Fragment>)}</nav><div className="header-actions">{control.toggles?.alphaAccessEnabled && <HeaderCommandButton primary onClick={() => setAuthOpen(true)}>{control.navigation?.playAlphaLabel || "Play Alpha"}</HeaderCommandButton>}{control.toggles?.walletButtonsEnabled && <HeaderCommandButton onClick={() => auth.user ? goAccount() : setAuthOpen(true)}>{accountLabel}</HeaderCommandButton>}</div><div className="mobile-action"><HeaderCommandButton primary onClick={() => auth.user ? goAccount() : setAuthOpen(true)}>{accountLabel}</HeaderCommandButton></div></div><div className="header-line" /></header>
     {control.statusBanner?.enabled && control.statusBanner?.text && <div className="control-banner">{control.statusBanner.text}</div>}
-    <main id="top">{activePage === "nfts" ? <NftSalesPage onAuthenticated={auth.refresh} onAuthOpen={() => setAuthOpen(true)} /> : <><section className="hero"><div className="container hero-inner"><div className="hero-copy home-hero-copy"><img className="home-sword-splatter" src="/makgura-sword-blood-splatter-core.png" alt="" aria-hidden="true" /><div className="hero-pills"><StatusPill>{control.hero?.badge || "Grounded Ancient War MMO"}</StatusPill><StatusPill>{control.hero?.factionBadge || "Rome. Barbarians. Egypt."}</StatusPill></div><h1 className="makgura-logo">{control.hero?.title || "Makgura"}</h1><div className="makgura-subtitle">{control.hero?.subtitle || "Level. Fight. Conquer."}</div><p className="hero-text">{control.hero?.body || "A persistent, player-driven war MMO where players level from 1-60, fight for Rome, the Barbarian Horde, or Egypt, become a Gladiator in Colosseum PvP, capture cities, control territory, and compete over dynamic world resources."}</p><div className="feature-grid">{heroFeatures.map((item)=><FeaturePill key={item}>{item}</FeaturePill>)}</div><div className="hero-ctas"><ShieldButton light onClick={() => handleCta(control.hero?.primaryCta)}>{control.hero?.primaryCta?.label || "Explore Makgura"}</ShieldButton><ShieldButton onClick={() => handleCta(control.hero?.secondaryCta)}>{control.hero?.secondaryCta?.label || "Read Whitepaper"}</ShieldButton></div></div><WarMapPanel /></div><div className="container stats-grid">{heroStats.map(([value,label])=><MetricCard key={label} value={value} label={label}/>)}</div></section>
+    <main id="top">{activePage === "account" ? <AccountPage auth={auth} onBack={goHome} onAuthOpen={() => setAuthOpen(true)} /> : activePage === "nfts" ? <NftSalesPage onAuthenticated={auth.refresh} onAuthOpen={() => setAuthOpen(true)} /> : <><section className="hero"><div className="container hero-inner"><div className="hero-copy home-hero-copy"><img className="home-sword-splatter" src="/makgura-sword-blood-splatter-core.png" alt="" aria-hidden="true" /><div className="hero-pills"><StatusPill>{control.hero?.badge || "Grounded Ancient War MMO"}</StatusPill><StatusPill>{control.hero?.factionBadge || "Rome. Barbarians. Egypt."}</StatusPill></div><h1 className="makgura-logo">{control.hero?.title || "Makgura"}</h1><div className="makgura-subtitle">{control.hero?.subtitle || "Level. Fight. Conquer."}</div><p className="hero-text">{control.hero?.body || "A persistent, player-driven war MMO where players level from 1-60, fight for Rome, the Barbarian Horde, or Egypt, become a Gladiator in Colosseum PvP, capture cities, control territory, and compete over dynamic world resources."}</p><div className="feature-grid">{heroFeatures.map((item)=><FeaturePill key={item}>{item}</FeaturePill>)}</div><div className="hero-ctas"><ShieldButton light onClick={() => handleCta(control.hero?.primaryCta)}>{control.hero?.primaryCta?.label || "Explore Makgura"}</ShieldButton><ShieldButton onClick={() => handleCta(control.hero?.secondaryCta)}>{control.hero?.secondaryCta?.label || "Read Whitepaper"}</ShieldButton></div></div><WarMapPanel /></div><div className="container stats-grid">{heroStats.map(([value,label])=><MetricCard key={label} value={value} label={label}/>)}</div></section>
     <section id="vision" className="section"><div className="container two-col"><div><SectionHeading eyebrow="CORE VISION" title="WoW Classic Progression. DayZ Risk. EVE-Style Control." text="Makgura combines long-form leveling, meaningful death, player-driven economy, shifting territory, capital city governance, sieges, world events, and constant faction conflict into one ancient war MMO."/><div className="vision-stack">{visionCards.map((card)=><Card key={card.title} {...card}/>)}</div></div><LoopPanel /></div></section>
     <section id="factions" className="section factions-section"><div className="container"><SectionHeading eyebrow="PLAYABLE FACTIONS" title="Rome. Barbarians. Egypt." text="The game is primarily centered around Rome, but its world war is shaped by three playable powers with different identities, strengths, economies, and battlefield styles."/><div className="faction-grid">{factions.map((faction)=><FactionCard key={faction.title} faction={faction}/>)}</div></div></section>
     <section id="world" className="section"><div className="container two-col world-grid"><SectionHeading eyebrow="WORLD & GOVERNANCE" title="Cities can be attacked, captured, and governed." text="Major cities are economic and social hubs. Attackers breach gates, capture districts, and flip city control. Capital City NFTs act as permanent tradable deeds, but income and policy control only activate when the owner’s faction controls the city."/><div className="stack">{worldSystems.map((system)=><Card key={system.title} eyebrow={system.eyebrow} title={system.title} text={system.text}><TagList tags={system.tags}/></Card>)}</div></div></section>
@@ -670,7 +828,7 @@ export default function App() {
     <MkgTokenSection onAuthOpen={() => setAuthOpen(true)} />
     <section id="roadmap" className="section"><div className="container"><SectionHeading eyebrow="ROADMAP" title="Built around risk, recovery, and constant conflict." text="The roadmap prioritizes a real playable MMO foundation first, then expands into city sieges, economy systems, capital deeds, gold veins, outposts, Colosseum rewards, token emissions, and seasonal territory resets."/><div className="four-grid">{roadmap.map((item)=><Card key={item.eyebrow} {...item}/>)}</div></div></section>
     {control.blog?.enabled && <BlogSection blog={control.blog} onOpenPost={setActivePost} />}
-    <section className="section"><div className="container"><DecreeBanner eyebrow={control.alpha?.eyebrow || "FINAL IDENTITY"} title={control.alpha?.title || "A persistent player-driven war MMO."} text={control.alpha?.body || "Players level, fight, lose gear, become Gladiators in Colosseum PvP, control territory, govern cities, compete over dynamic resources, and reshape a constantly shifting ancient world."} cta={<div className="final-ctas"><ShieldButton light onClick={() => setAuthOpen(true)}>{control.alpha?.primaryCtaLabel || "Play Alpha"}</ShieldButton><ShieldButton onClick={() => setAuthOpen(true)}>{accountLabel}</ShieldButton></div>}/></div></section></>}</main>
+    <section className="section"><div className="container"><DecreeBanner eyebrow={control.alpha?.eyebrow || "FINAL IDENTITY"} title={control.alpha?.title || "A persistent player-driven war MMO."} text={control.alpha?.body || "Players level, fight, lose gear, become Gladiators in Colosseum PvP, control territory, govern cities, compete over dynamic resources, and reshape a constantly shifting ancient world."} cta={<div className="final-ctas"><ShieldButton light onClick={() => setAuthOpen(true)}>{control.alpha?.primaryCtaLabel || "Play Alpha"}</ShieldButton><ShieldButton onClick={() => auth.user ? goAccount() : setAuthOpen(true)}>{accountLabel}</ShieldButton></div>}/></div></section></>}</main>
     <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} onAuthenticated={auth.refresh} user={auth.user} signOut={auth.signOut} /><BlogModal post={activePost} onClose={() => setActivePost(null)} /><footer className="site-footer"><div className="container footer-inner"><p>&copy; 2026 Makgura. All rights reserved.</p><a className="studio-footer-logo" href="https://majorigames.com" aria-label="Majori Games"><img src="/majori-logo-transparent.png" alt="Majori Games logo" /></a><p>A grounded ancient war MMO by Majori Games.</p></div></footer>
   </div>;
 }
