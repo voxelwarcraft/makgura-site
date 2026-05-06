@@ -195,6 +195,30 @@ function SectionHeading({ eyebrow, title, text }) { return <div className="secti
 function Card({ eyebrow, title, text, children, compact = false }) { return <div className={`card hover-card ${compact ? "compact" : ""}`}><div className="card-topline" /><div className="card-pattern" /><div className="card-glow" />{eyebrow && <div className="card-eyebrow">{eyebrow}</div>}<h3>{title}</h3><p>{text}</p>{children}</div>; }
 function MetricCard({ value, label }) { return <div className="metric-card hover-card"><div className="metric-topline" /><div className="metric-value">{value}</div><div className="metric-label">{label}</div></div>; }
 function TagList({ tags }) { return <div className="tag-list">{tags.map((tag) => <span key={tag}>{tag}</span>)}</div>; }
+function formatTokenBalance(value) {
+  if (value === undefined || value === null || value === "") return "0.00";
+  const numeric = Number(value);
+  if (Number.isFinite(numeric)) return numeric.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+  return String(value);
+}
+function readTokenBalance(account, symbols) {
+  const wanted = symbols.map((symbol) => symbol.toLowerCase());
+  const sources = [account?.balances, account?.tokenBalances, account?.coinBalances, account?.summary?.balances, account?.summary?.tokenBalances];
+  for (const source of sources) {
+    if (!source) continue;
+    if (Array.isArray(source)) {
+      const match = source.find((item) => wanted.includes(String(item.symbol || item.ticker || item.name || "").toLowerCase()));
+      if (match) return formatTokenBalance(match.balance ?? match.amount ?? match.value);
+    } else {
+      const key = Object.keys(source).find((sourceKey) => wanted.includes(sourceKey.toLowerCase()));
+      if (key) {
+        const value = source[key];
+        return formatTokenBalance(typeof value === "object" ? value.balance ?? value.amount ?? value.value : value);
+      }
+    }
+  }
+  return "0.00";
+}
 
 function NftOwnershipShowcase({ onOpenSale }) {
   const [activeCityId, setActiveCityId] = useState(founderCityDrops[0].id);
@@ -650,6 +674,7 @@ function AccountPage({ auth, onBack, onAuthOpen }) {
   const wallets = account?.wallets || auth.user?.wallets || [];
   const holdings = account?.holdings || [];
   const recentOrders = account?.recentOrders || [];
+  const mkgBalance = readTokenBalance(account, ["mkg", "makgura"]);
 
   return (
     <section className="section account-page">
@@ -696,6 +721,15 @@ function AccountPage({ auth, onBack, onAuthOpen }) {
                   {wallets.length ? wallets.map((wallet) => <code key={wallet}>{wallet}</code>) : <p>No wallet linked yet.</p>}
                 </div>
               </div>
+            </div>
+
+            <div className="account-panel account-token-balance-panel">
+              <div>
+                <div className="eyebrow">MAKGURA Coin Balance</div>
+                <h2>{mkgBalance} MKG</h2>
+                <p>Your connected account balance for Makgura's ecosystem coin. Future wallet, marketplace, and in-game balances can report into this same shared account.</p>
+              </div>
+              <div className="account-token-sigil">MKG</div>
             </div>
 
             <div className="account-panel">
