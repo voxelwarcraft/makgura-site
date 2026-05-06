@@ -627,7 +627,7 @@ function AccountPage({ auth, onBack, onAuthOpen }) {
   const [account, setAccount] = useState(null);
   const [loading, setLoading] = useState(Boolean(auth.user));
   const [error, setError] = useState("");
-  const [launchingAlpha, setLaunchingAlpha] = useState(false);
+  const [alphaNotice, setAlphaNotice] = useState("");
 
   React.useEffect(() => {
     let alive = true;
@@ -651,24 +651,12 @@ function AccountPage({ auth, onBack, onAuthOpen }) {
     return () => { alive = false; };
   }, [auth.user]);
 
-  async function launchUjuraAlpha() {
-    if (!auth.user || launchingAlpha) {
+  function launchMakguraAlphaPlaceholder() {
+    if (!auth.user) {
       onAuthOpen();
       return;
     }
-    setLaunchingAlpha(true);
-    try {
-      const launch = await authFetch("/api/auth/session", {
-        method: "POST",
-        body: JSON.stringify({ game: "ujura-alpha" }),
-      });
-      window.location.href = launch.launchUrl || "https://play.ujura.com";
-    } catch (launchError) {
-      setError(launchError.message);
-      onAuthOpen();
-    } finally {
-      setLaunchingAlpha(false);
-    }
+    setAlphaNotice("Makgura Alpha is not live yet. This account is ready and the launch button will connect here when alpha opens.");
   }
 
   const wallets = account?.wallets || auth.user?.wallets || [];
@@ -683,14 +671,15 @@ function AccountPage({ auth, onBack, onAuthOpen }) {
           <div>
             <div className="eyebrow">Shared Majori Account</div>
             <h1>My Account</h1>
-            <p>One account connects Majori Games, Ujura, Makgura, and the Ujura Alpha game. Manage sign-in, linked wallets, tracked NFT entitlements, and basic access from one place.</p>
+            <p>One account connects Majori Games, Ujura, Makgura, and future game access. Manage sign-in, linked wallets, tracked NFT entitlements, and basic access from one place.</p>
           </div>
           <div className="account-hero-actions">
             <ShieldButton onClick={onBack}>Back to Site</ShieldButton>
             {auth.user ? <ShieldButton onClick={() => { auth.signOut(); onBack(); }}>Sign Out</ShieldButton> : <ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton>}
-            {auth.user && <ShieldButton light onClick={launchUjuraAlpha}>{launchingAlpha ? "Launching..." : "Launch Ujura Alpha"}</ShieldButton>}
+            {auth.user && <ShieldButton light onClick={launchMakguraAlphaPlaceholder}>Launch Makgura Alpha</ShieldButton>}
           </div>
         </div>
+        {alphaNotice && <div className="market-notice account-alpha-notice">{alphaNotice}</div>}
 
         {!auth.user ? (
           <div className="account-panel">
