@@ -141,7 +141,8 @@ const tokenRewards = [
 ];
 const tokenDistribution = [
   ["60%", "Player Rewards", "4,800,000 MKG"],
-  ["15%", "Public Sale", "1,200,000 MKG"],
+  ["10%", "Public Sale", "800,000 MKG"],
+  ["5%", "Founders Pass Holders", "400,000 MKG"],
   ["10%", "Seed Round", "800,000 MKG"],
   ["10%", "Team / Development", "800,000 MKG"],
   ["5%", "Treasury", "400,000 MKG"],
@@ -158,14 +159,16 @@ const mkgDetails = [
   { label: "Max Supply", value: "8M", caption: "Only 8,000,000 MKG can ever exist" },
   { label: "Player Rewards", value: "60%", caption: "4,800,000 MKG earned through Gold Vein and Gladiator systems" },
   { label: "Seed Round", value: "10%", caption: "800,000 MKG at $0.05" },
-  { label: "Public Sale", value: "15%", caption: "1,200,000 MKG at $0.10" },
+  { label: "Public Sale", value: "10%", caption: "800,000 MKG at $0.10" },
+  { label: "Founders Pass Holders", value: "5%", caption: "400,000 MKG reserved for Founders Pass holders" },
   { label: "Team / Dev", value: "10%", caption: "800,000 MKG for building Makgura" },
   { label: "Treasury", value: "5%", caption: "400,000 MKG ecosystem reserve" },
 ];
 const mkgDistribution = [
   { name: "Player Rewards", percent: 60, amount: "4,800,000 MKG", note: "Earned through Gold Vein control and Top Gladiator PvP" },
   { name: "Public Seed Round", percent: 10, amount: "800,000 MKG", note: "$0.05 per MKG" },
-  { name: "Public Sale", percent: 15, amount: "1,200,000 MKG", note: "$0.10 per MKG" },
+  { name: "Public Sale", percent: 10, amount: "800,000 MKG", note: "$0.10 per MKG" },
+  { name: "Founders Pass Holders", percent: 5, amount: "400,000 MKG", note: "Reserved for Founders Pass holders" },
   { name: "Team / Dev", percent: 10, amount: "800,000 MKG", note: "Development allocation" },
   { name: "Treasury", percent: 5, amount: "400,000 MKG", note: "Ecosystem reserve" },
 ];
@@ -503,11 +506,11 @@ function MkgDistributionBars() {
 }
 
 function MkgSeedCheckout({ onAuthOpen }) {
-  return <div className="mkg-token-panel mkg-seed-checkout"><p className="eyebrow">Buy MKG</p><h2>Public Seed Checkout</h2><p>The public seed round is 10% of supply: 800,000 MKG at $0.05 per coin. Public sale later is 15% of supply: 1,200,000 MKG at $0.10 per coin.</p><div className="mkg-price-pair"><div><small>Public Seed Round</small><b>$0.05</b><span>800,000 MKG · 10%</span></div><div><small>Public Sale</small><b>$0.10</b><span>1,200,000 MKG · 15%</span></div></div>{mkgSeedPackages.map((pack) => <button className="mkg-allocation" key={pack.tag} type="button"><span><small>{pack.tag}</small><b>{pack.amount}</b></span><strong>{pack.price}</strong></button>)}<div className="mkg-input-box"><small>Custom MKG Amount</small><div><input placeholder="50,000" /><span>MKG</span></div><p><span>Estimated cost</span><b>$2,500.00</b></p></div><div className="button-row"><ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton><ShieldButton onClick={onAuthOpen}>Purchase MKG</ShieldButton></div><p className="mkg-disclaimer">Legal review, KYC/AML, smart contract audits, jurisdiction rules, vesting, revenue-share eligibility, and risk disclosures are required before any real sale or NFT revenue-sharing mechanism.</p></div>;
+  return <div className="mkg-token-panel mkg-seed-checkout"><p className="eyebrow">Buy MKG</p><h2>Public Seed Checkout</h2><p>The public seed round is 10% of supply: 800,000 MKG at $0.05 per coin. Public sale later is 10% of supply: 800,000 MKG at $0.10 per coin, with an additional 5% reserved for Founders Pass holders.</p><div className="mkg-price-pair"><div><small>Public Seed Round</small><b>$0.05</b><span>800,000 MKG · 10%</span></div><div><small>Public Sale</small><b>$0.10</b><span>800,000 MKG · 10%</span></div></div>{mkgSeedPackages.map((pack) => <button className="mkg-allocation" key={pack.tag} type="button"><span><small>{pack.tag}</small><b>{pack.amount}</b></span><strong>{pack.price}</strong></button>)}<div className="mkg-input-box"><small>Custom MKG Amount</small><div><input placeholder="50,000" /><span>MKG</span></div><p><span>Estimated cost</span><b>$2,500.00</b></p></div><div className="button-row"><ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton><ShieldButton onClick={onAuthOpen}>Purchase MKG</ShieldButton></div><p className="mkg-disclaimer">Legal review, KYC/AML, smart contract audits, jurisdiction rules, vesting, revenue-share eligibility, and risk disclosures are required before any real sale or NFT revenue-sharing mechanism.</p></div>;
 }
 
 function MkgTokenSection({ onAuthOpen }) {
-  return <section id="token" className="section"><div className="container"><SectionHeading eyebrow="MAKGURA COIN / MKG" title="Seed round: $0.05 per MKG. Public sale: $0.10 per MKG." text="MKG mirrors the UJU coin structure for the Majori ecosystem: 8,000,000 max supply, 10% public seed round, 15% public sale, long-term player rewards, and premium utility that does not sell combat power." /><div className="mkg-token-grid"><div className="mkg-token-panel"><div className="mkg-token-head"><div><p className="eyebrow">Token Overview</p><h2>MKG Coin</h2><p>MKG holders can vote on Makgura direction, access cosmetics, receive in-game utility like bank storage expansion, XP quality-of-life boosts, lower market fees, and are planned to receive a share of future NFT revenue subject to final legal structure.</p></div><div className="mkg-mark">MKG</div></div><div className="mkg-token-stats">{mkgDetails.map((item) => <TokenStat key={item.label} value={item.value} label={item.label} caption={item.caption} />)}</div><MkgDistributionBars /></div><MkgSeedCheckout onAuthOpen={onAuthOpen} /></div></div></section>;
+  return <section id="token" className="section"><div className="container"><SectionHeading eyebrow="MAKGURA COIN / MKG" title="Seed round: $0.05 per MKG. Public sale: $0.10 per MKG." text="MKG mirrors the UJU coin structure for the Majori ecosystem: 8,000,000 max supply, 10% public seed round, 10% public sale, a 5% Founders Pass holder allocation, long-term player rewards, and premium utility that does not sell combat power." /><div className="mkg-token-grid"><div className="mkg-token-panel"><div className="mkg-token-head"><div><p className="eyebrow">Token Overview</p><h2>MKG Coin</h2><p>MKG holders can vote on Makgura direction, access cosmetics, receive in-game utility like bank storage expansion, XP quality-of-life boosts, lower market fees, and are planned to receive a share of future NFT revenue subject to final legal structure.</p></div><div className="mkg-mark">MKG</div></div><div className="mkg-token-stats">{mkgDetails.map((item) => <TokenStat key={item.label} value={item.value} label={item.label} caption={item.caption} />)}</div><MkgDistributionBars /></div><MkgSeedCheckout onAuthOpen={onAuthOpen} /></div></div></section>;
 }
 
 function NftSalesPage({ onAuthenticated, onAuthOpen }) {
