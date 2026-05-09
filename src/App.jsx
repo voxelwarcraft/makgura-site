@@ -450,8 +450,8 @@ function MarketplaceButtons({ drop, onBuy, purchase, marketplaceReady }) {
   return (
     <>
       <div className="button-row">
-        <ShieldButton light disabled={disabled} onClick={() => onBuy?.(drop, "phantom")}>{purchase?.busy ? "Processing..." : soldOut ? "Sold Out" : "Buy With Phantom"}</ShieldButton>
-        <ShieldButton disabled={disabled} onClick={() => onBuy?.(drop, "solflare")}>Buy With Solflare</ShieldButton>
+        <ShieldButton light disabled={disabled} onClick={() => onBuy?.(drop, "phantom")}>{purchase?.busy ? "Processing..." : soldOut ? "Sold Out" : "Buy SOL With Phantom"}</ShieldButton>
+        <ShieldButton disabled={disabled} onClick={() => onBuy?.(drop, "solflare")}>{soldOut ? "Sold Out" : "Buy SOL With Solflare"}</ShieldButton>
       </div>
       {!marketplaceReady && <p className="purchase-message">Solana checkout is being configured. Inventory display is live.</p>}
       {purchase?.message && <p className="purchase-message">{purchase.message}</p>}
@@ -560,7 +560,7 @@ function NftSalesPage({ onAuthenticated, onAuthOpen }) {
         ...current,
         [drop.id]: {
           busy: false,
-          message: `Payment confirmed. Order ${result.order.id} now holds your Makgura NFT entitlement.`,
+          message: `Payment confirmed. ${result.order.itemName || drop.name} is now in your shared account inventory as a tracked entitlement. NFT minting comes later.`,
         },
       }));
       const catalog = await fetchNftCatalog();
@@ -584,6 +584,7 @@ function NftSalesPage({ onAuthenticated, onAuthOpen }) {
             <h1 className="makgura-logo">Makgura NFTs</h1>
             <div className="makgura-subtitle">Founder cities and capital land plots.</div>
             <p className="hero-text">A clean Makgura marketplace for one-of-one Founder Capital City NFTs and capital land plots for player-built houses. Filter by Rome, Egypt, or the Barbarian capital, then pick small, medium, or large real estate.</p>
+            <p className="market-notice nft-purchase-note">Purchases use SOL on Solana and are tracked in your shared Majori account inventory immediately. NFT minting and final on-chain delivery come later.</p>
             <div className="hero-ctas"><ShieldButton light onClick={onAuthOpen}>Play Alpha</ShieldButton><ShieldButton onClick={viewNftSale}>View NFT Sale</ShieldButton></div>
           </div>
           <NftSaleHud />
