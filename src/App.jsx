@@ -177,6 +177,9 @@ const mkgSeedPackages = [
   { amount: "20,000 MKG", price: "$1,000", tag: "Captain" },
   { amount: "100,000 MKG", price: "$5,000", tag: "Founder" },
 ];
+const MKG_SEED_ITEM_ID = "makgura-public-seed-round";
+const MKG_SEED_TOTAL = 800000;
+const MKG_SEED_PRICE_USD = 0.05;
 const mkgUtility = [
   "Vote on game direction, balance changes, events, and long-term Makgura ecosystem decisions",
   "Access cosmetics, visual upgrades, status unlocks, and prestige rewards without selling combat power",
@@ -221,6 +224,21 @@ function readTokenBalance(account, symbols) {
     }
   }
   return "0.00";
+}
+function parseTokenAmount(value) {
+  const numeric = Math.floor(Number(String(value || "").replace(/[^0-9.]/g, "")));
+  return Number.isFinite(numeric) && numeric > 0 ? numeric : 0;
+}
+function formatUsd(value) {
+  return Number(value || 0).toLocaleString(undefined, { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function formatInventoryPrice(holding) {
+  if (holding.kind === "token_allocation") {
+    const quantity = Number(holding.quantity || 0).toLocaleString();
+    return `${quantity} ${holding.quantityLabel || holding.symbol || "tokens"}`;
+  }
+  if (holding.priceLabel) return holding.priceLabel;
+  return `${holding.priceSol} SOL`;
 }
 
 function NftOwnershipShowcase({ onOpenSale }) {
@@ -506,11 +524,78 @@ function MkgDistributionBars() {
 }
 
 function MkgSeedCheckout({ onAuthOpen }) {
-  return <div className="mkg-token-panel mkg-seed-checkout"><p className="eyebrow">Buy MKG</p><h2>Public Seed Checkout</h2><p>The public seed round is 10% of supply: 800,000 MKG at $0.05 per coin. Public sale later is 10% of supply: 800,000 MKG at $0.10 per coin, with an additional 5% reserved for Founders Pass holders.</p><div className="mkg-price-pair"><div><small>Public Seed Round</small><b>$0.05</b><span>800,000 MKG · 10%</span></div><div><small>Public Sale</small><b>$0.10</b><span>800,000 MKG · 10%</span></div></div>{mkgSeedPackages.map((pack) => <button className="mkg-allocation" key={pack.tag} type="button"><span><small>{pack.tag}</small><b>{pack.amount}</b></span><strong>{pack.price}</strong></button>)}<div className="mkg-input-box"><small>Custom MKG Amount</small><div><input placeholder="50,000" /><span>MKG</span></div><p><span>Estimated cost</span><b>$2,500.00</b></p></div><div className="button-row"><ShieldButton light onClick={onAuthOpen}>Connect Wallet</ShieldButton><ShieldButton onClick={onAuthOpen}>Purchase MKG</ShieldButton></div><p className="mkg-disclaimer">Legal review, KYC/AML, smart contract audits, jurisdiction rules, vesting, revenue-share eligibility, and risk disclosures are required before any real sale or NFT revenue-sharing mechanism.</p></div>;
+  const auth = useSharedAuth();
+  const [catalogItem, setCatalogItem] = useState(null);
+  const [catalogReady, setCatalogReady] = useState(false);
+  const [amount, setAmount] = useState("50000");
+  const [busyProvider, setBusyProvider] = useState("");
+  const [message, setMessage] = useState("");
+
+  async function loadCatalog() {
+    const catalog = await fetchNftCatalog();
+    setCatalogReady(Boolean(catalog.settings?.saleConfigured));
+    setCatalogItem((catalog.items || []).find((item) => item.id === MKG_SEED_ITEM_ID) || null);
+  }
+
+  React.useEffect(() => {
+    let alive = true;
+    fetchNftCatalog()
+      .then((catalog) => {
+        if (!alive) return;
+        setCatalogReady(Boolean(catalog.settings?.saleConfigured));
+        setCatalogItem((catalog.items || []).find((item) => item.id === MKG_SEED_ITEM_ID) || null);
+      })
+      .catch((error) => {
+        if (alive) setMessage(error.message);
+      });
+    return () => { alive = false; };
+  }, []);
+
+  const quantity = parseTokenAmount(amount);
+  const remaining = catalogItem?.remaining ?? catalogItem?.inventory?.remaining ?? MKG_SEED_TOTAL;
+  const estimatedCost = quantity * MKG_SEED_PRICE_USD;
+  const disabled = !catalogReady || busyProvider || quantity < 1 || quantity > remaining;
+
+  async function handleSeedPurchase(providerName) {
+    setBusyProvider(providerName);
+    setMessage("");
+    try {
+      const result = await buyNftWithWallet({
+        itemId: MKG_SEED_ITEM_ID,
+        providerName,
+        quantity,
+        onAuthenticated: auth.refresh,
+      });
+      await auth.refresh();
+      await loadCatalog();
+      setMessage(`${quantity.toLocaleString()} MAKGURA seed allocation confirmed in your shared Majori account inventory. Signature: ${result.signature}`);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setBusyProvider("");
+    }
+  }
+
+  return (
+    <div className="mkg-token-panel mkg-seed-checkout">
+      <p className="eyebrow">Buy MKG</p>
+      <h2>Public Seed Checkout</h2>
+      <p>The public seed round is 10% of supply: 800,000 MAKGURA at $0.05 per coin. Purchased allocations show in your shared Majori account now; actual coin minting and delivery come later.</p>
+      <div className="mkg-price-pair seed-only">
+        <div><small>Public Seed Round</small><b>$0.05</b><span>{Number(remaining).toLocaleString()} MAKGURA available</span></div>
+      </div>
+      {mkgSeedPackages.map((pack) => <button className="mkg-allocation" key={pack.tag} type="button" onClick={() => setAmount(String(parseTokenAmount(pack.amount)))}><span><small>{pack.tag}</small><b>{pack.amount.replace("MKG", "MAKGURA")}</b></span><strong>{pack.price}</strong></button>)}
+      <div className="mkg-input-box"><small>Custom MAKGURA Amount</small><div><input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="numeric" placeholder="50,000" /><span>MKG</span></div><p><span>Estimated cost</span><b>{formatUsd(estimatedCost)}</b></p></div>
+      <div className="button-row"><ShieldButton light disabled={disabled} onClick={() => handleSeedPurchase("phantom")}>{busyProvider === "phantom" ? "Confirming..." : "Buy MAKGURA With Phantom"}</ShieldButton><ShieldButton disabled={disabled} onClick={() => handleSeedPurchase("solflare")}>{busyProvider === "solflare" ? "Confirming..." : "Buy MAKGURA With Solflare"}</ShieldButton></div>
+      {!auth.user && <ShieldButton onClick={onAuthOpen}>Sign In With Email Instead</ShieldButton>}
+      {message && <p className="purchase-message">{message}</p>}
+      <p className="mkg-disclaimer">Legal review, KYC/AML, smart contract audits, jurisdiction rules, vesting, revenue-share eligibility, and risk disclosures are required before any real sale or NFT revenue-sharing mechanism.</p>
+    </div>
+  );
 }
 
 function MkgTokenSection({ onAuthOpen }) {
-  return <section id="token" className="section"><div className="container"><SectionHeading eyebrow="MAKGURA COIN / MKG" title="Seed round: $0.05 per MKG. Public sale: $0.10 per MKG." text="MKG mirrors the UJU coin structure for the Majori ecosystem: 8,000,000 max supply, 10% public seed round, 10% public sale, a 5% Founders Pass holder allocation, long-term player rewards, and premium utility that does not sell combat power." /><div className="mkg-token-grid"><div className="mkg-token-panel"><div className="mkg-token-head"><div><p className="eyebrow">Token Overview</p><h2>MKG Coin</h2><p>MKG holders can vote on Makgura direction, access cosmetics, receive in-game utility like bank storage expansion, XP quality-of-life boosts, lower market fees, and are planned to receive a share of future NFT revenue subject to final legal structure.</p></div><div className="mkg-mark">MKG</div></div><div className="mkg-token-stats">{mkgDetails.map((item) => <TokenStat key={item.label} value={item.value} label={item.label} caption={item.caption} />)}</div><MkgDistributionBars /></div><MkgSeedCheckout onAuthOpen={onAuthOpen} /></div></div></section>;
+  return <section id="token" className="section"><div className="container"><SectionHeading eyebrow="MAKGURA COIN / MKG" title="Seed round: $0.05 per MKG." text="MKG mirrors the UJU coin structure for the Majori ecosystem: 8,000,000 max supply, 10% public seed round, 10% future public sale, a 5% Founders Pass holder allocation, long-term player rewards, and premium utility that does not sell combat power." /><div className="mkg-token-grid"><div className="mkg-token-panel"><div className="mkg-token-head"><div><p className="eyebrow">Token Overview</p><h2>MKG Coin</h2><p>MKG holders can vote on Makgura direction, access cosmetics, receive in-game utility like bank storage expansion, XP quality-of-life boosts, lower market fees, and are planned to receive a share of future NFT revenue subject to final legal structure.</p></div><div className="mkg-mark">MKG</div></div><div className="mkg-token-stats">{mkgDetails.map((item) => <TokenStat key={item.label} value={item.value} label={item.label} caption={item.caption} />)}</div><MkgDistributionBars /></div><MkgSeedCheckout onAuthOpen={onAuthOpen} /></div></div></section>;
 }
 
 function NftSalesPage({ onAuthenticated, onAuthOpen }) {
@@ -695,9 +780,9 @@ function AccountPage({ auth, onBack, onAuthOpen }) {
         ) : (
           <>
             <div className="account-metrics">
-              <MetricCard value={String(account?.summary?.total || 0)} label="Tracked NFTs" />
-              <MetricCard value={String(account?.summary?.byProject?.ujura || 0)} label="Ujura NFTs" />
-              <MetricCard value={String(account?.summary?.byProject?.makgura || 0)} label="Makgura NFTs" />
+              <MetricCard value={String(account?.summary?.total || 0)} label="Tracked Inventory" />
+              <MetricCard value={String(account?.summary?.byProject?.ujura || 0)} label="Ujura Inventory" />
+              <MetricCard value={String(account?.summary?.byProject?.makgura || 0)} label="Makgura Inventory" />
               <MetricCard value={String(wallets.length)} label="Linked Wallets" />
             </div>
 
@@ -728,14 +813,14 @@ function AccountPage({ auth, onBack, onAuthOpen }) {
             <div className="account-panel">
               <div className="account-section-head">
                 <div>
-                  <div className="eyebrow">Wallet NFT View</div>
-                  <h2>Your Majori NFTs</h2>
+                  <div className="eyebrow">Wallet Inventory View</div>
+                  <h2>Your Majori Inventory</h2>
                 </div>
-                <p>{loading ? "Loading account NFTs..." : "Tracked NFT purchases and entitlements across Ujura, Makgura, and future Majori drops."}</p>
+                <p>{loading ? "Loading account inventory..." : "Tracked purchases, seed allocations, and NFT entitlements across Ujura, Makgura, and future Majori drops."}</p>
               </div>
               {error && <div className="market-notice">{error}</div>}
               {!loading && holdings.length === 0 ? (
-                <p className="account-empty">No tracked NFT entitlements yet. Confirmed purchases made through Ujura or Makgura will appear here.</p>
+                <p className="account-empty">No tracked purchases yet. Confirmed purchases made through Ujura or Makgura will appear here.</p>
               ) : (
                 <div className="three-grid account-nft-grid">
                   {holdings.map((holding) => <AccountNftCard key={holding.id} holding={holding} />)}
@@ -750,7 +835,7 @@ function AccountPage({ auth, onBack, onAuthOpen }) {
                 {recentOrders.length ? recentOrders.slice(0, 6).map((order) => (
                   <div key={order.id} className="account-activity-row">
                     <span><strong>{order.itemName}</strong><small>{order.project} · {order.status}</small></span>
-                    <b>{order.priceSol} SOL</b>
+                    <b>{formatInventoryPrice(order)}</b>
                   </div>
                 )) : <p>No recent NFT activity yet.</p>}
               </div>
@@ -772,7 +857,7 @@ function AccountNftCard({ holding }) {
       <p>{holding.perk || "Tracked Majori ecosystem NFT entitlement."}</p>
       <div className="tag-list">
         <span>{holding.status}</span>
-        <span>{holding.priceSol} SOL</span>
+        <span>{formatInventoryPrice(holding)}</span>
         <span>{holding.entitlementSource === "backend_tracked_entitlement" ? "Tracked" : "On-chain ready"}</span>
       </div>
     </article>

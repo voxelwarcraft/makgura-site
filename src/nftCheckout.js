@@ -10,7 +10,7 @@ export async function fetchNftCatalog() {
   return body;
 }
 
-export async function buyNftWithWallet({ itemId, providerName, onAuthenticated }) {
+export async function buyNftWithWallet({ itemId, providerName, onAuthenticated, quantity }) {
   const provider = getSolanaProvider(providerName);
   if (!provider) throw new Error(providerName === "solflare" ? "Solflare wallet was not found" : "Phantom wallet was not found");
   if (!provider.signTransaction) throw new Error("This wallet cannot sign Solana purchase transactions");
@@ -22,7 +22,7 @@ export async function buyNftWithWallet({ itemId, providerName, onAuthenticated }
 
   const checkout = await authFetch("/api/nft/checkout", {
     method: "POST",
-    body: JSON.stringify({ itemId, walletAddress }),
+    body: JSON.stringify({ itemId, walletAddress, quantity }),
   });
 
   const connection = new Connection(checkout.rpcUrl, "confirmed");
