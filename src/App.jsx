@@ -172,11 +172,6 @@ const mkgDistribution = [
   { name: "Team / Dev", percent: 10, amount: "800,000 MKG", note: "Development allocation" },
   { name: "Treasury", percent: 5, amount: "400,000 MKG", note: "Ecosystem reserve" },
 ];
-const mkgSeedPackages = [
-  { amount: "5,000 MKG", price: "$250", tag: "Scout" },
-  { amount: "20,000 MKG", price: "$1,000", tag: "Captain" },
-  { amount: "100,000 MKG", price: "$5,000", tag: "Founder" },
-];
 const MKG_SEED_ITEM_ID = "makgura-public-seed-round";
 const MKG_SEED_TOTAL = 800000;
 const MKG_SEED_PRICE_USD = 0.05;
@@ -584,7 +579,6 @@ function MkgSeedCheckout({ onAuthOpen }) {
       <div className="mkg-price-pair seed-only">
         <div><small>Public Seed Round</small><b>$0.05</b><span>{Number(remaining).toLocaleString()} MAKGURA available</span></div>
       </div>
-      {mkgSeedPackages.map((pack) => <button className="mkg-allocation" key={pack.tag} type="button" onClick={() => setAmount(String(parseTokenAmount(pack.amount)))}><span><small>{pack.tag}</small><b>{pack.amount.replace("MKG", "MAKGURA")}</b></span><strong>{pack.price}</strong></button>)}
       <div className="mkg-input-box"><small>Custom MAKGURA Amount</small><div><input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="numeric" placeholder="50,000" /><span>MKG</span></div><p><span>Estimated cost</span><b>{formatUsd(estimatedCost)}</b></p></div>
       <div className="button-row"><ShieldButton light disabled={disabled} onClick={() => handleSeedPurchase("phantom")}>{busyProvider === "phantom" ? "Confirming..." : "Buy MAKGURA With Phantom"}</ShieldButton><ShieldButton disabled={disabled} onClick={() => handleSeedPurchase("solflare")}>{busyProvider === "solflare" ? "Confirming..." : "Buy MAKGURA With Solflare"}</ShieldButton></div>
       {!auth.user && <ShieldButton onClick={onAuthOpen}>Sign In With Email Instead</ShieldButton>}
